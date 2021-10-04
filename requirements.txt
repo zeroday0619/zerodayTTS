@@ -1,0 +1,1 @@
+nextcord[speed, voice]==2.0.0a3
