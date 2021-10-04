@@ -25,6 +25,8 @@ jobs:
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v1
