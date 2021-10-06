@@ -12,3 +12,5 @@ updates:
     ignore:
       - dependency-name: "flake8" 
       - dependency-name: "black"
+      - dependency-name: "kss"
+      - dependency-name: "pycord"

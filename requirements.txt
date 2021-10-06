@@ -1,1 +1,4 @@
-nextcord[speed, voice]==2.0.0a3
+Cython==0.29.24
+git+https://github.com/TeamSayumi/pycord.git
+rich==10.11.0
+kss==1.3.1
