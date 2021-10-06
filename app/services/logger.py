@@ -15,7 +15,7 @@ def generate_log():
     # Create a logger and set the level.
     for i in ["ZerodayTTS", "ffmpeg", "asyncio", "subprocess", "discord"]:
         logger = logging.getLogger(i)
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
     logger.handlers = [RichHandler(rich_tracebacks=True, show_time=True)]
 
     log_dir = os.path.expanduser("~/log")
