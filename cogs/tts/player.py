@@ -1,19 +1,30 @@
 import os
-import discord
 from io import BytesIO
 from shlex import split
 from subprocess import PIPE, Popen
+
+import discord
 from discord.opus import Encoder
+
 from app.extension import KakaoSpeechAPI
 
-
 KSA = KakaoSpeechAPI(os.environ.get("KAKAO_SPEECH_API_KEY"))
+
 
 class FFmpegPCMAudio(discord.AudioSource):
     """Reimplementation of discord.FFmpegPCMAudio with source: bytes support
     Original Source: https://github.com/Rapptz/discord.py/issues/5192"""
 
-    def __init__(self, source, *, executable="ffmpeg", pipe=False, stderr=None, before_options=None, options=None):
+    def __init__(
+        self,
+        source,
+        *,
+        executable="ffmpeg",
+        pipe=False,
+        stderr=None,
+        before_options=None,
+        options=None
+    ):
         args = [executable]
         if isinstance(before_options, str):
             args.extend(split(before_options))
@@ -62,8 +73,10 @@ class FFmpegPCMAudio(discord.AudioSource):
 class TTSSource(discord.PCMVolumeTransformer):
     def __init__(self, source, *, volume=0.5):
         super().__init__(source, volume)
-    
+
     @classmethod
     async def text_to_speech(cls, text):
         data = await KSA.text_to_speech(source=text)
-        return cls(FFmpegPCMAudio(data, pipe=True, options='-loglevel "quiet"'), volume=0.5)
+        return cls(
+            FFmpegPCMAudio(data, pipe=True, options='-loglevel "quiet"'), volume=0.5
+        )

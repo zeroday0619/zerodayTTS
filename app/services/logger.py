@@ -1,6 +1,7 @@
-import os
-import logging
 import functools
+import logging
+import os
+
 from rich.logging import RichHandler
 
 
@@ -9,7 +10,7 @@ def generate_log():
     Create a logger object
     :return: Logger object.
     """
-    log_format = '%(levelname)s %(asctime)s %(funcName)20s %(message)s'
+    log_format = "%(levelname)s %(asctime)s %(funcName)20s %(message)s"
 
     # Create a logger and set the level.
     for i in ["ZerodayTTS", "ffmpeg", "asyncio", "subprocess", "discord"]:
@@ -30,18 +31,19 @@ def generate_log():
     logger.addHandler(file_handler)
     return logger
 
-     
+
 def LogDecorator(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         logger = generate_log()
-            
+
         try:
             logger.debug("{0} : {1} - {2} - {3}".format(func.__name__, *args, kwargs))
             result = func(*args, **kwargs)
             logger.debug(result)
             return result
-        except:
-            issue = "exception in "+func.__name__+"\n"
+        except Exception:
+            issue = "exception in " + func.__name__ + "\n"
             logger.exception(issue)
+
     return wrapper

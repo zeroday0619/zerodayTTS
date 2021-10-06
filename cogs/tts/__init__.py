@@ -1,20 +1,20 @@
-
 from typing import Type
+
 import discord
+from discord.app import Option
 from discord.app.commands import slash_command
 from discord.ext import commands
-from discord.app import Option
-from .player import TTSSource
 
+from .player import TTSSource
 
 FFMPEG_OPTIONS = {
     "options": "-y",
 }
 
 
-
 class TTS(commands.Cog):
-    __slots__ = ('bot', 'voice')
+    __slots__ = ("bot", "voice")
+
     def __init__(self, bot: commands.Bot):
         self.voice = None
         self.players = {}
@@ -36,8 +36,7 @@ class TTS(commands.Cog):
         """Joins a voice channel."""
         if self.is_joined(ctx.author):
             return
-        
-        
+
         _voice_state = ctx.author.guild._voice_states.get(ctx.author.id)
         if type(_voice_state) == discord.VoiceState:
             ch = _voice_state.channel
@@ -56,16 +55,15 @@ class TTS(commands.Cog):
                 self.play(source=player)
                 return True
             else:
-                await ctx.send(
-                    content=f"{ctx.author.name}가 TTS 사용함", 
-                    delete_after=10
-                )
+                await ctx.send(content=f"{ctx.author.name}가 TTS 사용함", delete_after=10)
                 return False
         except Exception:
             return Exception
 
     @slash_command()
-    async def tts(self, ctx: commands.Context, *, text: Option(str, "text", required=True)):
+    async def tts(
+        self, ctx: commands.Context, *, text: Option(str, "text", required=True)
+    ):
         await self.join(ctx)
         status = await self._tts(ctx, text)
         if status == Type[Exception]:
@@ -83,11 +81,13 @@ class TTS(commands.Cog):
         await ctx.send("Disconnected", delete_after=5)
 
     def play(self, source: discord.AudioSource):
-        
+
         self.voice.play(source)
 
     @slash_command()
-    async def volume(self, ctx: commands.Context, volume: Option(int, "volume", required=True)):
+    async def volume(
+        self, ctx: commands.Context, volume: Option(int, "volume", required=True)
+    ):
         """Changes the player's volume"""
 
         if ctx.voice_client is None:

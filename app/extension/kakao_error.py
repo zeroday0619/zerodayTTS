@@ -1,6 +1,8 @@
 class BAD_REQUEST_EXCEPTION(Exception):
     def __init__(self):
-        self.msg = "[일반적인 오류] 주로 API에 필요한 필수 파라미터와 관련하여 서버가 클라이언트 오류를 감지해 요청을 처리하지 못한 상태입니다."
+        self.msg = (
+            "[일반적인 오류] 주로 API에 필요한 필수 파라미터와 관련하여 서버가 클라이언트 오류를 감지해 요청을 처리하지 못한 상태입니다."
+        )
 
     def __str__(self):
         return self.msg
@@ -32,7 +34,9 @@ class TOO_MANY_REQUEST_EXCEPTION(Exception):
 
 class INTERNAL_SERVER_ERROR_EXCEPTION(Exception):
     def __init__(self):
-        self.msg = "[시스템 오류] 서버 에러를 총칭하는 에러 코드로, 요청을 처리하는 과정에서 서버가 예상하지 못한 상황에 놓인 상태입니다."
+        self.msg = (
+            "[시스템 오류] 서버 에러를 총칭하는 에러 코드로, 요청을 처리하는 과정에서 서버가 예상하지 못한 상황에 놓인 상태입니다."
+        )
 
     def __str__(self):
         return self.msg
