@@ -61,7 +61,7 @@ class TTS(commands.Cog):
                 await self.play(ctx=ctx, source=player)
                 return True
             else:
-                await ctx.respond(content=f"{ctx.author.name}가 TTS 사용함")
+                await ctx.respond(content=f"[**{ctx.author.name}**] >> {text}")
                 return False
         except Exception:
             return Exception
