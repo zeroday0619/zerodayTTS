@@ -61,7 +61,6 @@ class TTS(commands.Cog):
                 await self.play(ctx=ctx, source=player)
                 return True
             else:
-                await ctx.respond(content=f"[**{ctx.author.name}**] >> {text}")
                 return False
         except Exception:
             return Exception
@@ -75,7 +74,7 @@ class TTS(commands.Cog):
         if status == Type[Exception]:
             await ctx.respond("오류가 발생했습니다.")
         if status:
-            await ctx.respond(f"{ctx.author.name}님이 TTS 사용함.")
+            await ctx.respond(f"[**{ctx.author.name}**] >> {text}")
         else:
             await ctx.respond(f"{ctx.author.name}님이 TTS가 이미 사용중입니다.")
 
