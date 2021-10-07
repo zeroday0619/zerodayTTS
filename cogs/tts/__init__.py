@@ -4,6 +4,7 @@ from typing import Type
 import discord
 from discord.app import Option
 from discord.app.commands import slash_command
+from discord.app.context import ApplicationContext
 from discord.ext import commands
 
 from .player import TTSSource
@@ -14,18 +15,9 @@ FFMPEG_OPTIONS = {
 
 
 class TTS(commands.Cog):
-    __slots__ = ("bot", "voice")
-
     def __init__(self, bot: commands.Bot):
         self.voice = None
-        self.players = {}
         self.bot = bot
-
-    def get_player(self, ctx: commands.Context):
-        try:
-            return self.players[ctx.guild.id]
-        except KeyError:
-            raise KeyError("Player not found")
 
     def is_joined(self, member: discord.Member):
         if not member.voice:
@@ -33,7 +25,7 @@ class TTS(commands.Cog):
 
         return self.voice and self.voice.channel.id == member.voice.channel.id
 
-    async def join(self, ctx: commands.Context):
+    async def join(self, ctx: ApplicationContext):
         """Joins a voice channel."""
         if self.is_joined(ctx.author):
             return
@@ -61,7 +53,7 @@ class TTS(commands.Cog):
                 await ctx.respond(content=f"Moving to channel: <{str(channel)}> timed out")
                 raise Exception(f"Moving to channel: <{str(channel)}> timed out")
 
-    async def _tts(self, ctx: commands.Context, text: str):
+    async def _tts(self, ctx: ApplicationContext, text: str):
         """Text to Speech"""
         try:
             if not self.voice.is_playing():
@@ -76,7 +68,7 @@ class TTS(commands.Cog):
 
     @slash_command()
     async def tts(
-        self, ctx: commands.Context, *, text: Option(str, "text", required=True)
+        self, ctx: ApplicationContext, *, text: Option(str, "text", required=True)
     ):
         await self.join(ctx)
         status = await self._tts(ctx, text)
@@ -88,13 +80,16 @@ class TTS(commands.Cog):
             await ctx.respond(f"{ctx.author.name}님이 TTS가 이미 사용중입니다.")
 
     @slash_command()
-    async def leave(self, ctx: commands.Context):
+    async def leave(self, ctx: ApplicationContext):
         """Leaves a voice channel."""
-
-        await self.voice.disconnect()
+        try:
+            await self.voice.disconnect()
+        except AttributeError:
+            await ctx.respond(content=f"{ctx.author.name}가 음성 채널에 접속하지 않음")
+            return
         await ctx.respond("Disconnected")
 
-    async def play(self, ctx: commands.Context, source: discord.AudioSource):
+    async def play(self, ctx: ApplicationContext, source: discord.AudioSource):
         vc = ctx.voice_client
         if not vc:
             await ctx.invoke(self.join)
@@ -102,7 +97,7 @@ class TTS(commands.Cog):
 
     @slash_command()
     async def volume(
-        self, ctx: commands.Context, volume: Option(int, "volume", required=True)
+        self, ctx: ApplicationContext, volume: Option(int, "volume", required=True)
     ):
         """Changes the player's volume"""
 
