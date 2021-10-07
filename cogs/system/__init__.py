@@ -1,6 +1,6 @@
-from discord.ext import commands
 from discord.app.commands import slash_command
 from discord.app.context import ApplicationContext
+from discord.ext import commands
 
 
 class System(commands.Cog):
