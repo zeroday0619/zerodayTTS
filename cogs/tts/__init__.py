@@ -41,7 +41,7 @@ class TTS(commands.Cog):
         try:
             channel = ctx.author.voice.channel
         except AttributeError:
-            await ctx.respond(content=f"{ctx.author.name}가 음성 채널에 접속하지 않음", delete_after=10)
+            await ctx.respond(content=f"{ctx.author.name}가 음성 채널에 접속하지 않음")
             raise Exception(f"{ctx.author.name}가 음성 채널에 접속하지 않음")
         
         vc = ctx.voice_client
@@ -52,13 +52,13 @@ class TTS(commands.Cog):
             try:
                 await vc.move_to(channel)
             except asyncio.TimeoutError:
-                await ctx.respond(content=f"Moving to channel: <{str(channel)}> timed out", delete_after=10)
+                await ctx.respond(content=f"Moving to channel: <{str(channel)}> timed out")
                 raise Exception(f"Moving to channel: <{str(channel)}> timed out")
         else:
             try:
                 self.voice = await channel.connect()
             except asyncio.TimeoutError:
-                await ctx.respond(content=f"Moving to channel: <{str(channel)}> timed out", delete_after=10)
+                await ctx.respond(content=f"Moving to channel: <{str(channel)}> timed out")
                 raise Exception(f"Moving to channel: <{str(channel)}> timed out")
 
     async def _tts(self, ctx: commands.Context, text: str):
@@ -69,7 +69,7 @@ class TTS(commands.Cog):
                 await self.play(ctx=ctx, source=player)
                 return True
             else:
-                await ctx.respond(content=f"{ctx.author.name}가 TTS 사용함", delete_after=10)
+                await ctx.respond(content=f"{ctx.author.name}가 TTS 사용함")
                 return False
         except Exception:
             return Exception
@@ -83,16 +83,16 @@ class TTS(commands.Cog):
         if status == Type[Exception]:
             await ctx.respond("오류가 발생했습니다.")
         if status:
-            await ctx.respond(f"{ctx.author.name}님이 TTS 사용함.", delete_after=10)
+            await ctx.respond(f"{ctx.author.name}님이 TTS 사용함.")
         else:
-            await ctx.respond(f"{ctx.author.name}님이 TTS가 이미 사용중입니다.", delete_after=10)
+            await ctx.respond(f"{ctx.author.name}님이 TTS가 이미 사용중입니다.")
 
     @slash_command()
     async def leave(self, ctx: commands.Context):
         """Leaves a voice channel."""
 
         await self.voice.disconnect()
-        await ctx.respond("Disconnected", delete_after=5)
+        await ctx.respond("Disconnected")
 
     async def play(self, ctx: commands.Context, source: discord.AudioSource):
         vc = ctx.voice_client
