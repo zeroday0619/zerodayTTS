@@ -18,7 +18,6 @@ class KakaoSpeechAPI:
         Args:
             api_key (str): Kakao Speech API Key
         """
-
         self.api_key = api_key
         self.api_url = "https://kakaoi-newtone-openapi.kakao.com"
 
@@ -92,7 +91,6 @@ class KakaoSpeechAPI:
             _data(f'<prosody rate="medium" volume="loud">{sentence}<break/></prosody>')
 
         ssml = f"""<speak> <voice name="WOMAN_READ_CALM"> {str(''.join(data))} </voice> </speak>"""
-        print(ssml)
         return ssml
 
     async def text_to_speech(self, source: str):

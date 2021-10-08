@@ -71,6 +71,7 @@ class FFmpegPCMAudio(discord.AudioSource):
 
 
 class TTSSource(discord.PCMVolumeTransformer):
+    __slots__ = "source"
     def __init__(self, source, *, volume=0.5):
         super().__init__(source, volume)
 

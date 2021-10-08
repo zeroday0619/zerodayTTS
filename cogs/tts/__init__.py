@@ -7,6 +7,8 @@ from discord.app.commands import slash_command
 from discord.app.context import ApplicationContext
 from discord.ext import commands
 
+from app.error import InvalidVoiceChannel, VoiceConnectionError
+
 from .player import TTSSource
 
 FFMPEG_OPTIONS = {
@@ -15,9 +17,13 @@ FFMPEG_OPTIONS = {
 
 
 class TTS(commands.Cog):
+    __slots__ = (
+        "bot"
+    )
     def __init__(self, bot: commands.Bot):
-        self.voice = None
         self.bot = bot
+        self.voice = None
+        self.volume = 150
 
     def is_joined(self, member: discord.Member):
         if not member.voice:
@@ -33,8 +39,12 @@ class TTS(commands.Cog):
         try:
             channel = ctx.author.voice.channel
         except AttributeError:
-            await ctx.respond(content=f"{ctx.author.name}가 음성 채널에 접속하지 않음")
-            raise Exception(f"{ctx.author.name}가 음성 채널에 접속하지 않음")
+            await ctx.respond(
+                content="'Voice channel'에 연결하지 못하였습니다.\n 유효한 'Voice channel'에 자신이 들어와 있는지 확인바랍니다."
+            )
+            raise InvalidVoiceChannel(
+                message="'Voice channel'에 연결하지 못하였습니다."
+            )
         
         vc = ctx.voice_client
 
@@ -45,13 +55,13 @@ class TTS(commands.Cog):
                 await vc.move_to(channel)
             except asyncio.TimeoutError:
                 await ctx.respond(content=f"Moving to channel: <{str(channel)}> timed out")
-                raise Exception(f"Moving to channel: <{str(channel)}> timed out")
+                raise VoiceConnectionError(f"Moving to channel: <{str(channel)}> timed out")
         else:
             try:
                 self.voice = await channel.connect()
             except asyncio.TimeoutError:
-                await ctx.respond(content=f"Moving to channel: <{str(channel)}> timed out")
-                raise Exception(f"Moving to channel: <{str(channel)}> timed out")
+                await ctx.respond(content=f"Connecting to channel: <{str(channel)}> timed out")
+                raise VoiceConnectionError(message=f"Connecting to channel: <{str(channel)}> timed out")
 
     async def _tts(self, ctx: ApplicationContext, text: str):
         """Text to Speech"""
