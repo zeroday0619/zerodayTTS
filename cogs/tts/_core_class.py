@@ -28,7 +28,7 @@ class TTSCore(commands.Cog):
         if not member.voice:
             raise
 
-        return self.voice.get(ctx.author.guild.id) and self.voice.channel.id == member.voice.channel.id
+        return self.voice.get(ctx.author.guild.id) and self.voice.get(ctx.author.guild.id) is not None and self.voice.get(ctx.author.guild.id).channel.id == member.voice.channel.id
 
     async def join(self, ctx: ApplicationContext):
         """Joins a voice channel."""
