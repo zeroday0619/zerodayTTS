@@ -1,12 +1,12 @@
 import asyncio
-import discord
+from typing import Dict, Optional
 
-from typing import Optional, Dict
-from discord.ext import commands
+import discord
 from discord.app.context import ApplicationContext
+from discord.ext import commands
 from discord.voice_client import VoiceClient
-from app.error import InvalidVoiceChannel
-from app.error import VoiceConnectionError
+
+from app.error import InvalidVoiceChannel, VoiceConnectionError
 from cogs.tts.player import TTSSource
 
 
@@ -34,7 +34,6 @@ class TTSCore(commands.Cog):
         """Joins a voice channel."""
         if self.is_joined(ctx, ctx.author):
             return
-        
         try:
             channel = ctx.author.guild._voice_states[ctx.author.id].channel
         except AttributeError:
@@ -44,9 +43,7 @@ class TTSCore(commands.Cog):
             raise InvalidVoiceChannel(
                 message="'Voice channel'에 연결하지 못하였습니다."
             )
-        
         vc = ctx.guild.voice_client
-
         if vc:
             if vc.channel.id == channel.id:
                 return

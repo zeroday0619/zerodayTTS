@@ -1,12 +1,12 @@
-import discord
-
 from typing import Type
-from discord.ext import commands
+
+import discord
 from discord.app import Option
 from discord.app.commands import slash_command
 from discord.app.context import ApplicationContext
-from ._core_class import TTSCore
+from discord.ext import commands
 
+from ._core_class import TTSCore
 
 FFMPEG_OPTIONS = {
     "options": "-y",
