@@ -3,8 +3,8 @@ from discord import Intents
 from app import ZerodayTTS
 
 app = ZerodayTTS(
-    message=["pre-release 1.0.1", "문의: @zeroday0619#2080"], 
-    command_prefix="=", 
+    message=["pre-release 1.0.1", "문의: @zeroday0619#2080"],
+    command_prefix="=",
     intents=Intents(
         bans=False,
         emojis=False,
