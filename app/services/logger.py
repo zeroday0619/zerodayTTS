@@ -22,7 +22,7 @@ def generate_log():
     if not os.path.isdir(log_dir):
         os.mkdir(log_dir)
 
-    LOG_PATH = os.path.expanduser("~/log/WindowsInsiderBot.log")
+    LOG_PATH = os.path.expanduser("~/log/zerodayTTS.log")
     file_handler = logging.FileHandler(filename=LOG_PATH)
 
     formatter = logging.Formatter(log_format)
