@@ -18,7 +18,7 @@ app = ZerodayTTS(
         invites=False,
         webhooks=False,
         integrations=True,
-    )
+    ),
 )
 app.load_extensions(["cogs.system", "cogs.tts"])
 app.launch()

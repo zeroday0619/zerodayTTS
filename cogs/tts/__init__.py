@@ -53,18 +53,6 @@ class TTS(TTSCore):
             return
         await ctx.respond("Disconnected")
 
-    @slash_command()
-    async def volume(
-        self, ctx: ApplicationContext, volume: Option(int, "volume", required=True)
-    ):
-        """Changes the player's volume"""
-
-        if ctx.voice_client is None:
-            return await ctx.respond("Not connected to a voice channel.")
-
-        self.voice[ctx.author.guild.id].source.volume = volume / 100
-        await ctx.respond(f"Changed volume to {volume}%")
-
 
 def setup(bot):
     bot.add_cog(TTS(bot))
