@@ -1,9 +1,11 @@
 import discord
-from discord.app.commands import SlashCommand, application_command, slash_command, command
+from discord.app.commands import (SlashCommand, application_command, command,
+                                  slash_command)
 from discord.app.context import ApplicationContext
 from discord.app.errors import ApplicationCommandError
 from discord.ext import commands
 from discord.ext.commands.errors import CommandError
+
 from app.services.logger import generate_log
 
 
