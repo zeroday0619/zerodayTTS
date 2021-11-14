@@ -2,7 +2,8 @@ import asyncio
 from typing import Dict, Optional
 
 import discord
-from discord.app.context import ApplicationContext
+from discord import ApplicationContext
+from discord.channel import VoiceChannel
 from discord.ext import commands
 from discord.voice_client import VoiceClient
 
@@ -29,6 +30,16 @@ class TTSCore(commands.Cog):
             raise
 
         return self.voice.get(ctx.author.guild.id) and self.voice.get(ctx.author.guild.id) is not None and self.voice.get(ctx.author.guild.id).channel.id == member.voice.channel.id
+
+    async def check_voice_ch_active_user(self):
+        for vc in self.voice.values():
+            c_id = vc.channel.id
+            if c_id:
+                ch: VoiceChannel = vc.channel
+                if ch.members.__len__() <= 1:
+                    await self.voice[c_id].disconnect()
+                else:
+                    pass
 
     async def join(self, ctx: ApplicationContext):
         """Joins a voice channel."""
