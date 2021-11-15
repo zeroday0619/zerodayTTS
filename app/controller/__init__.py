@@ -7,13 +7,15 @@ from app.services.logger import LogDecorator
 
 
 class ZerodayTTS(ZerodayCore):
-    __slots__ = (
-        "message",
-        "intents"
-    )
+    __slots__ = ("message", "intents")
 
     def __init__(
-        self, message: List[str], intents: Intents, discord_token: Optional[str] = None, *args, **kwargs
+        self,
+        message: List[str],
+        intents: Intents,
+        discord_token: Optional[str] = None,
+        *args,
+        **kwargs
     ):
         self.intents = intents
         super().__init__(message, discord_token, *args, **kwargs)

@@ -14,13 +14,13 @@ from .logger import generate_log
 
 
 class ZerodayCore(Bot):
-    __slots__ = (
-        "message", "intents"
-    )
-    
+    __slots__ = ("message", "intents")
+
     _database = Database(url=DatabaseURL(os.environ.get("DATABASE_URL")))
 
-    def __init__(self, message: List[str], intents: Intents, discord_token=None, *args, **kwargs):
+    def __init__(
+        self, message: List[str], intents: Intents, discord_token=None, *args, **kwargs
+    ):
         super().__init__(*args, **kwargs)
         self.logger = generate_log()
         self.message = cycle(message)
@@ -37,14 +37,13 @@ class ZerodayCore(Bot):
             self.change_status.stop()
             pass
 
-
     @tasks.loop(seconds=10)
     async def change_status(self):
         msg = self.message
         await self.change_presence(
             status=discord.Status.online, activity=discord.Game(name=next(msg))
         )
-    
+
     def launch(self):
         """
         reference code: https://github.com/TeamSayumi/pycord/blob/feature/slash/discord/client.py#L613
@@ -55,4 +54,3 @@ class ZerodayCore(Bot):
             pass
         except RuntimeError:
             pass
-

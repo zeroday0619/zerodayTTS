@@ -13,6 +13,7 @@ from cogs.tts.player import TTSSource
 
 class TTSCore(commands.Cog):
     __slots__ = ("bot", "voice")
+
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.voice: Optional[Dict[int, VoiceClient]] = {}
@@ -29,7 +30,12 @@ class TTSCore(commands.Cog):
         if not member.voice:
             raise
 
-        return self.voice.get(ctx.author.guild.id) and self.voice.get(ctx.author.guild.id) is not None and self.voice.get(ctx.author.guild.id).channel.id == member.voice.channel.id
+        return (
+            self.voice.get(ctx.author.guild.id)
+            and self.voice.get(ctx.author.guild.id) is not None
+            and self.voice.get(ctx.author.guild.id).channel.id
+            == member.voice.channel.id
+        )
 
     async def check_voice_ch_active_user(self):
         for vc in self.voice.values():
@@ -51,9 +57,7 @@ class TTSCore(commands.Cog):
             await ctx.respond(
                 content="'Voice channel'에 연결하지 못하였습니다.\n 유효한 'Voice channel'에 자신이 들어와 있는지 확인바랍니다."
             )
-            raise InvalidVoiceChannel(
-                message="'Voice channel'에 연결하지 못하였습니다."
-            )
+            raise InvalidVoiceChannel(message="'Voice channel'에 연결하지 못하였습니다.")
         vc = ctx.guild.voice_client
         if vc:
             if vc.channel.id == channel.id:
@@ -62,14 +66,22 @@ class TTSCore(commands.Cog):
                 _voice = self.voice[ctx.author.guild.id]
                 await _voice.move_to(channel)
             except asyncio.TimeoutError:
-                await ctx.respond(content=f"Moving to channel: <{str(channel)}> timed out")
-                raise VoiceConnectionError(f"Moving to channel: <{str(channel)}> timed out")
+                await ctx.respond(
+                    content=f"Moving to channel: <{str(channel)}> timed out"
+                )
+                raise VoiceConnectionError(
+                    f"Moving to channel: <{str(channel)}> timed out"
+                )
         else:
             try:
                 self.voice[ctx.author.guild.id] = await channel.connect()
             except asyncio.TimeoutError:
-                await ctx.respond(content=f"Connecting to channel: <{str(channel)}> timed out")
-                raise VoiceConnectionError(message=f"Connecting to channel: <{str(channel)}> timed out")
+                await ctx.respond(
+                    content=f"Connecting to channel: <{str(channel)}> timed out"
+                )
+                raise VoiceConnectionError(
+                    message=f"Connecting to channel: <{str(channel)}> timed out"
+                )
 
     async def disconnect(self, ctx: ApplicationContext):
         """Disconnects from voice channel."""

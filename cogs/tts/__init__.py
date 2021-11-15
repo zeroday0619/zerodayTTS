@@ -18,29 +18,30 @@ FFMPEG_OPTIONS = {
 
 class TTS(TTSCore):
     __slots__ = ("bot", "voice")
-    
+
     def __init__(self, bot: Bot):
         super(TTS, self).__init__(bot)
         self.database = app.database()
         self.logger = generate_log()
-    
+
     @tasks.loop(minutes=1)
     async def cleanup(self):
         await self.check_voice_ch_active_user()
 
     @slash_command()
     @has_permissions(administrator=True)
-    async def register(
-        self, ctx: ApplicationContext
-    ):
+    async def register(self, ctx: ApplicationContext):
         """TTS 전용 채널 등록"""
         try:
             query = servers.insert()
-            await self.database.execute(query=query, values={
-                "user_id": int(ctx.author.id),
-                "guild_id": int(ctx.author.guild.id),
-                "tts_channel_id": int(ctx.channel.id)
-            })
+            await self.database.execute(
+                query=query,
+                values={
+                    "user_id": int(ctx.author.id),
+                    "guild_id": int(ctx.author.guild.id),
+                    "tts_channel_id": int(ctx.channel.id),
+                },
+            )
             return await ctx.respond("성공")
         except IntegrityError as code:
             co = list(code.args)
@@ -50,8 +51,6 @@ class TTS(TTSCore):
             co = list(code.args)
             self.logger.warning(msg=f"{co[1]} | ERROR CODE: {co[0]}")
             return await ctx.respond("등록 실패")
-
-        
 
     @slash_command()
     async def tts(
@@ -73,7 +72,6 @@ class TTS(TTSCore):
         except Exception:
             return await ctx.respond("오류가 발생했습니다.")
         await ctx.respond(f"{ctx.author.name}님 정상적으로 보이스 채널에 연결되었습니다.")
-        
 
     @slash_command()
     async def leave(self, ctx: ApplicationContext):
