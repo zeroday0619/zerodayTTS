@@ -1,8 +1,7 @@
 from typing import Type
 
 from discord import ApplicationContext, Option
-from discord.ext import tasks
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord.ext.commands import Bot, has_permissions, slash_command
 from pymysql.err import IntegrityError, ProgrammingError
 
@@ -22,16 +21,15 @@ def check_channel():
         logger = generate_log()
         database = app.database()
         try:
-            query = servers.select().where(
-                servers.c.guild_id == ctx.guild.id
-            )
+            query = servers.select().where(servers.c.guild_id == ctx.guild.id)
             source = await database.fetch_one(query=query)
-        
+
             tts_channel_id = source[3]
         except Exception as e:
             logger.error(msg=f"ERROR: {e}")
-            return False        
+            return False
         return ctx.channel.id == tts_channel_id
+
     return commands.check(predicate)
 
 
@@ -42,7 +40,7 @@ class TTS(TTSCore):
         super(TTS, self).__init__(bot)
         self.database = app.database()
         self.logger = generate_log()
-    
+
     @tasks.loop(minutes=1)
     async def cleanup(self):
         await self.check_voice_ch_active_user()
@@ -84,7 +82,7 @@ class TTS(TTSCore):
             await ctx.respond(f"[**{ctx.author.name}**] >> {text}")
         else:
             await ctx.respond(f"{ctx.author.name}님이 TTS가 이미 사용중입니다.")
-    
+
     @slash_command()
     @check_channel()
     async def connect(self, ctx: ApplicationContext):
@@ -94,7 +92,6 @@ class TTS(TTSCore):
             return await ctx.respond("오류가 발생했습니다.")
         await ctx.respond(f"{ctx.author.name}님 정상적으로 보이스 채널에 연결되었습니다.")
 
-    
     @slash_command()
     @check_channel()
     async def leave(self, ctx: ApplicationContext):
