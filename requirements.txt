@@ -1,5 +1,5 @@
 Cython==0.29.24
-git+https://github.com/TeamSayumi/pycord.git
+git+https://github.com/zeroday0619/pycord.git
 rich==10.13.0
 kss==1.3.1
 databases[mysql]==0.5.3
