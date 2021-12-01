@@ -1,7 +1,7 @@
 from typing import Type
 
 from discord import ApplicationContext, Option
-from discord.ext import commands, tasks
+from discord.ext import commands
 from discord.ext.commands import Bot, has_permissions, slash_command
 from pymysql.err import IntegrityError, ProgrammingError
 
@@ -41,7 +41,6 @@ class TTS(TTSCore):
         self.database = app.database()
         self.logger = generate_log()
 
-    @tasks.loop(minutes=1)
     async def cleanup(self):
         await self.check_voice_ch_active_user()
 
@@ -68,6 +67,10 @@ class TTS(TTSCore):
             co = list(code.args)
             self.logger.warning(msg=f"{co[1]} | ERROR CODE: {co[0]}")
             return await ctx.respond("등록 실패")
+        except AssertionError as code:
+            co = list(code.args)
+            self.logger.error(msg=f"{' '.join(co)}")
+            return await ctx.respond("System Error")
 
     @slash_command()
     @check_channel()
@@ -81,7 +84,7 @@ class TTS(TTSCore):
         if status:
             await ctx.respond(f"[**{ctx.author.name}**] >> {text}")
         else:
-            await ctx.respond(f"{ctx.author.name}님이 TTS가 이미 사용중입니다.")
+            await ctx.respond(f"{ctx.author.name}님이 TTS를 사용중입니다.")
 
     @slash_command()
     @check_channel()

@@ -9,6 +9,7 @@ from databases import Database, DatabaseURL
 from discord.ext import tasks
 from discord.ext.commands import Bot
 from discord.flags import Intents
+from pymysql.err import OperationalError
 
 from .logger import generate_log
 
@@ -30,7 +31,13 @@ class ZerodayCore(Bot):
     async def on_ready(self):
         self.logger.info(f"Logged in as {self.user}")
         try:
-            await self._database.connect()
+            try:
+                await self._database.connect()
+            except OperationalError as code:
+                co = list(code.args)
+                self.logger.error(msg=f"{co[1]} | CODE: {co[0]}")
+                pass
+
             await self.change_status.start()
         except asyncio.CancelledError:
             await self._database.disconnect()

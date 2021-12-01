@@ -4,10 +4,11 @@ from typing import Dict, Optional
 import discord
 from discord import ApplicationContext
 from discord.channel import VoiceChannel
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord.voice_client import VoiceClient
 
 from app.error import InvalidVoiceChannel, VoiceConnectionError
+from app.services.logger import generate_log
 from cogs.tts.player import TTSSource
 
 
@@ -16,8 +17,13 @@ class TTSCore(commands.Cog):
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+        self.logger = generate_log()
         self.voice: Optional[Dict[int, VoiceClient]] = {}
         self.volume = 150
+
+    @commands.Cog.listener()
+    async def on_ready(self) -> None:
+        await self.check_voice_ch_active_user.start()
 
     def is_joined(self, ctx: ApplicationContext, member: discord.Member):
         """
@@ -37,13 +43,17 @@ class TTSCore(commands.Cog):
             == member.voice.channel.id
         )
 
+    @tasks.loop(minutes=1)
     async def check_voice_ch_active_user(self):
-        for vc in self.voice.values():
-            c_id = vc.channel.id
-            if c_id:
-                ch: VoiceChannel = vc.channel
-                if ch.members.__len__() <= 1:
-                    await self.voice[c_id].disconnect()
+        for _id in list(self.voice.keys()):
+            if _id:
+                ch: VoiceChannel = self.voice[_id].channel
+                if ch.members.__len__() < 2:
+                    try:
+                        await self.voice[_id].disconnect()
+                        del self.voice[_id]
+                    except KeyError as e:
+                        self.logger.error(msg=e)
                 else:
                     pass
 
