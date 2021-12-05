@@ -27,11 +27,16 @@ sh ./scripts/lint.sh
 - ### Run
 
 ```sh
+export DATABASE_URL="mysql://localhost:3306/zerodayTTS"
 export ZERODAY_TTS_KAKAO_API_KEY=<your-api-key>
 export ZERODAY_TTS_KAKAO_API_SECRET=<your-api-secret>
 export ZERODAY_TTS_DISCORD_TOKEN=<your-discord-token>
 
 pip3 install -r requirements.txt
+
+# 처음 실행하는 경우 
+python3 configure.py
+
 python3 start.py
 ```
 
