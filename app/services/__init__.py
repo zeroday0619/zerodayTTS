@@ -7,14 +7,14 @@ from typing import List
 import discord
 from databases import Database, DatabaseURL
 from discord.ext import tasks
-from discord.ext.commands import Bot
+from discord.ext.commands import AutoShardedBot
 from discord.flags import Intents
 from pymysql.err import OperationalError
 
 from .logger import generate_log
 
 
-class ZerodayCore(Bot):
+class ZerodayCore(AutoShardedBot):
     __slots__ = ("message", "intents")
 
     _database = Database(url=DatabaseURL(os.environ.get("DATABASE_URL")))
