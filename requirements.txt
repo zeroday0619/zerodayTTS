@@ -1,4 +1,4 @@
-Cython==0.29.25
+Cython==0.29.26
 git+https://github.com/Pycord-Development/pycord.git
 rich==10.15.2
 kss==1.3.1
