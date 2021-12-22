@@ -110,25 +110,25 @@ class TTSCore(commands.Cog):
         self.voice[ctx.author.guild.id].play(source)
     
     @commands.Cog.listener()
-    async def on_message(self, ctx: ApplicationContext, message: discord.Message):
-        if self.is_joined(ctx, ctx.author):
+    async def on_message(self, message: discord.Message):
+        if self.is_joined(message, message.author):
             return
-            
-        if message.channel.id == self.voice[ctx.author.guild.id].channel.id:
+
+        if message.channel.id == self.voice[message.author.guild.id].channel.id:
             if message.author.bot:
                 return
 
             msg = message.content
-            if not self.voice[ctx.author.guild.id].is_playing():
+            if not self.voice[message.author.guild.id].is_playing():
                 player = await TTSSource.text_to_speech(msg)
-                await self.play(ctx=ctx, source=player)
+                await self.play(ctx=message, source=player)
             else:
-                self.messageQueue[ctx.author.guild.id].append(msg)
-                while self.voice[ctx.author.guild.id].is_playing():
+                self.messageQueue[message.author.guild.id].append(msg)
+                while self.voice[message.author.guild.id].is_playing():
                     await asyncio.sleep(1)
-                q_text = self.messageQueue[ctx.author.guild.id].popleft()
+                q_text = self.messageQueue[message.author.guild.id].popleft()
                 q_player = await TTSSource.text_to_speech(q_text)
-                await self.play(ctx=ctx, source=q_player)
+                await self.play(ctx=message, source=q_player)
 
  
     async def _tts(self, ctx: ApplicationContext, text: str):
