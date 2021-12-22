@@ -34,7 +34,7 @@ def check_channel():
 
 
 class TTS(TTSCore):
-    __slots__ = ("bot", "voice")
+    __slots__ = ("bot", "voice", "messageQueue")
 
     def __init__(self, bot: Bot):
         super(TTS, self).__init__(bot)

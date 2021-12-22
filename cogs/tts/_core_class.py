@@ -18,7 +18,7 @@ class TTSCore(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.logger = generate_log()
-        self.messageQueue [Dict[int, deque]] = {}
+        self.messageQueue: Optional[Dict[int, deque]] = {}
         self.voice: Optional[Dict[int, VoiceClient]] = {}
         self.volume = 150
 
