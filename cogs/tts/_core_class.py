@@ -117,7 +117,7 @@ class TTSCore(commands.Cog):
         if message.channel.id == self.voice[message.author.guild.id].channel.id:
             if message.author.bot:
                 return            
-            await self._tts(message, message.content)
+            print(await self._tts(message, message.content))
 
  
     async def _tts(self, ctx: ApplicationContext, text: str):
