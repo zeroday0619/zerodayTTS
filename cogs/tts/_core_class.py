@@ -116,19 +116,8 @@ class TTSCore(commands.Cog):
 
         if message.channel.id == self.voice[message.author.guild.id].channel.id:
             if message.author.bot:
-                return
-
-            msg = message.content
-            if not self.voice[message.author.guild.id].is_playing():
-                player = await TTSSource.text_to_speech(msg)
-                await self.play(ctx=message, source=player)
-            else:
-                self.messageQueue[message.author.guild.id].append(msg)
-                while self.voice[message.author.guild.id].is_playing():
-                    await asyncio.sleep(1)
-                q_text = self.messageQueue[message.author.guild.id].popleft()
-                q_player = await TTSSource.text_to_speech(q_text)
-                await self.play(ctx=message, source=q_player)
+                return            
+            await self._tts(message, message.content)
 
  
     async def _tts(self, ctx: ApplicationContext, text: str):
