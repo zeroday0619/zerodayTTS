@@ -41,9 +41,6 @@ class TTS(TTSCore):
         self.database = app.database()
         self.logger = generate_log()
 
-    async def cleanup(self):
-        await self.check_voice_ch_active_user()
-
     @slash_command()
     @has_permissions(administrator=True)
     async def register(self, ctx: ApplicationContext):
