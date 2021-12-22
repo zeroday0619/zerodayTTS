@@ -109,17 +109,8 @@ class TTSCore(commands.Cog):
             await ctx.invoke(self.join)
         self.voice[ctx.author.guild.id].play(source)
     
-    @commands.Cog.listener()
-    async def on_message(self, message: discord.Message):
-        if self.is_joined(message, message.author):
-            return
 
-        if message.channel.id == self.voice[message.author.guild.id].channel.id:
-            if message.author.bot:
-                return            
-            print(await self._tts(message, message.content))
 
- 
     async def _tts(self, ctx: ApplicationContext, text: str):
         """Text to Speech"""
         try:
