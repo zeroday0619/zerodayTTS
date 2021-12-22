@@ -34,7 +34,7 @@ def check_channel():
 
 
 class TTS(TTSCore):
-    __slots__ = ("bot", "voice")
+    __slots__ = ("bot", "voice", "messageQueue")
 
     def __init__(self, bot: Bot):
         super(TTS, self).__init__(bot)
@@ -83,8 +83,6 @@ class TTS(TTSCore):
             await ctx.respond("오류가 발생했습니다.")
         if status:
             await ctx.respond(f"[**{ctx.author.name}**] >> {text}")
-        else:
-            await ctx.respond(f"{ctx.author.name}님이 TTS를 사용중입니다.")
 
     @slash_command()
     @check_channel()

@@ -1,5 +1,5 @@
 import asyncio
-from typing import Dict, Optional
+from typing import Deque, Dict, Optional
 
 import discord
 from discord import ApplicationContext
@@ -10,14 +10,15 @@ from discord.voice_client import VoiceClient
 from app.error import InvalidVoiceChannel, VoiceConnectionError
 from app.services.logger import generate_log
 from cogs.tts.player import TTSSource
-
+from collections import deque
 
 class TTSCore(commands.Cog):
-    __slots__ = ("bot", "voice")
+    __slots__ = ("bot", "voice", "messageQueue")
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.logger = generate_log()
+        self.messageQueue [Dict[int, deque]] = {}
         self.voice: Optional[Dict[int, VoiceClient]] = {}
         self.volume = 150
 
@@ -51,6 +52,7 @@ class TTSCore(commands.Cog):
                 if ch.members.__len__() < 2:
                     try:
                         await self.voice[_id].disconnect()
+                        del self.messageQueue[_id]
                         del self.voice[_id]
                     except KeyError as e:
                         self.logger.error(msg=e)
@@ -85,6 +87,7 @@ class TTSCore(commands.Cog):
         else:
             try:
                 self.voice[ctx.author.guild.id] = await channel.connect()
+                self.messageQueue[ctx.author.guild.id] = deque([])
             except asyncio.TimeoutError:
                 await ctx.respond(
                     content=f"Connecting to channel: <{str(channel)}> timed out"
@@ -114,6 +117,13 @@ class TTSCore(commands.Cog):
                 await self.play(ctx=ctx, source=player)
                 return True
             else:
-                return False
+                self.messageQueue[ctx.author.guild.id].append(text)
+                while self.voice[ctx.author.guild.id].is_playing():
+                    await asyncio.sleep(1)
+                q_text = self.message_queue[ctx.author.guild.id].popleft()
+                q_player = await TTSSource.text_to_speech(q_text)
+                await self.play(ctx=ctx, source=q_player)
+                return True
+
         except Exception:
             return Exception
