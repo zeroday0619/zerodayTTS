@@ -90,7 +90,7 @@ class KakaoSpeechAPI:
         _source = self.clean_source(source)
 
         for sentence in kss.split_sentences(_source):
-            _data(f'<prosody rate="medium" volume="loud">{sentence}<break/></prosody>')
+            _data(f'<prosody rate="slow" volume="loud">{sentence}<break/></prosody>')
 
         ssml = f"""<speak> <voice name="WOMAN_READ_CALM"> {str(''.join(data))} </voice> </speak>"""
         return ssml
