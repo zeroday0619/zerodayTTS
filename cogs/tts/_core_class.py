@@ -1,7 +1,7 @@
 import asyncio
 from collections import deque
 from collections.abc import MutableMapping
-from typing import Dict, Optional
+from typing import Optional
 
 import discord
 from discord import ApplicationContext
