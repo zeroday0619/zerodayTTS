@@ -77,9 +77,21 @@ class TTS(TTSCore):
         await self.join(ctx)
         status = await self._tts(ctx, text)
         if status == Type[Exception]:
-            await ctx.respond("오류가 발생했습니다.")
+            return await ctx.respond("오류가 발생했습니다.")
         if status:
-            await ctx.respond(f"[**{ctx.author.name}**] >> {text}")
+            return await ctx.respond(f"[**{ctx.author.name}**] >> {text}")
+
+    @slash_command()
+    @check_channel()
+    async def clova(
+        self, ctx: ApplicationContext, *, text: Option(str, "text", required=True)
+    ):
+        await self.join(ctx)
+        status = await self._clova_tts(ctx, text)
+        if status == Type[Exception]:
+            return await ctx.respond("오류가 발생했습니다.")
+        if status:
+            return await ctx.respond(f"[**{ctx.author.name}**] >> {text}")
 
     @slash_command()
     @check_channel()
@@ -97,9 +109,8 @@ class TTS(TTSCore):
         try:
             await self.disconnect(ctx)
         except AttributeError:
-            await ctx.respond(content=f"{ctx.author.name}가 음성 채널에 접속하지 않음")
-            return
-        await ctx.respond("Disconnected")
+            return await ctx.respond(content=f"{ctx.author.name}가 음성 채널에 접속 하지 않음")
+        return await ctx.respond("Disconnected")
 
 
 def setup(bot):

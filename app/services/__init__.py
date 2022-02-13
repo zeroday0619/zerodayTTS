@@ -1,6 +1,7 @@
 import asyncio
 import os
 import signal
+from abc import ABCMeta
 from itertools import cycle
 from typing import List
 
@@ -14,7 +15,7 @@ from pymysql.err import OperationalError
 from .logger import generate_log
 
 
-class ZerodayCore(AutoShardedBot):
+class ZerodayCore(AutoShardedBot, metaclass=ABCMeta):
     __slots__ = ("message", "intents")
 
     _database = Database(url=DatabaseURL(os.environ.get("DATABASE_URL")))
@@ -26,7 +27,9 @@ class ZerodayCore(AutoShardedBot):
         self.logger = generate_log()
         self.message = cycle(message)
         self.intents = intents
-        self.discord_token = discord_token or os.environ.get("DISCORD_TOKEN")
+        self.discord_token = discord_token or os.environ.get(
+            "ZERODAY_TTS_DISCORD_TOKEN"
+        )
 
     async def on_ready(self):
         self.logger.info(f"Logged in as {self.user}")

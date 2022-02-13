@@ -1,5 +1,7 @@
 import asyncio
-from typing import Deque, Dict, Optional
+from collections import deque
+from collections.abc import MutableMapping
+from typing import Dict, Optional
 
 import discord
 from discord import ApplicationContext
@@ -10,7 +12,55 @@ from discord.voice_client import VoiceClient
 from app.error import InvalidVoiceChannel, VoiceConnectionError
 from app.services.logger import generate_log
 from cogs.tts.player import TTSSource
-from collections import deque
+
+
+class CustomDict(MutableMapping):
+    def __init__(self, *args, **kwargs):
+        self.store: dict[int, VoiceClient] = dict()
+        self.update(dict(*args, **kwargs))
+
+    def __getitem__(self, key):
+        return self.store[key]
+
+    def __setitem__(self, key, value):
+        self.store[key] = value
+
+    def __delitem__(self, key):
+        del self.store[key]
+
+    def __iter__(self):
+        return iter(self.store)
+
+    def __len__(self):
+        return len(self.store)
+
+
+class VoiceObject(CustomDict):
+    logger = generate_log()
+
+    def __init__(self):
+        super().__init__()
+        self.changed = False
+
+    def __setitem__(self, key, item):
+        self.logger.info("SET %s %s", key, item)
+        self.store[key] = item
+        self.changed = True
+
+    def __delitem__(self, key):
+        self.logger.info("DEL %s %s", key, self.store[key])
+        del self.store[key]
+        self.changed = True
+
+    def __getitem__(self, key):
+        return self.store[key]
+
+    def __repr__(self):
+        return repr(self.store)
+
+    def __len__(self):
+        return len(self.store)
+
 
 class TTSCore(commands.Cog):
     __slots__ = ("bot", "voice", "messageQueue")
@@ -18,8 +68,8 @@ class TTSCore(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.logger = generate_log()
-        self.messageQueue: Optional[Dict[int, deque]] = {}
-        self.voice: Optional[Dict[int, VoiceClient]] = {}
+        self.messageQueue: Optional[dict[int, deque]] = {}
+        self.voice = VoiceObject()
         self.volume = 150
 
     @commands.Cog.listener()
@@ -44,7 +94,7 @@ class TTSCore(commands.Cog):
             == member.voice.channel.id
         )
 
-    @tasks.loop(minutes=1)
+    @tasks.loop(minutes=5)
     async def check_voice_ch_active_user(self):
         for _id in list(self.voice.keys()):
             if _id:
@@ -53,7 +103,7 @@ class TTSCore(commands.Cog):
                     try:
                         await self.voice[_id].disconnect()
                         del self.messageQueue[_id]
-                        del self.voice[_id]
+                        self.voice.__delitem__(_id)
                     except KeyError as e:
                         self.logger.error(msg=e)
                 else:
@@ -64,10 +114,11 @@ class TTSCore(commands.Cog):
         if self.is_joined(ctx, ctx.author):
             return
         try:
+            # noinspection PyProtectedMember
             channel = ctx.author.guild._voice_states[ctx.author.id].channel
         except AttributeError:
             await ctx.respond(
-                content="'Voice channel'에 연결하지 못하였습니다.\n 유효한 'Voice channel'에 자신이 들어와 있는지 확인바랍니다."
+                content="'Voice channel 연결하지 못하였습니다.\n 유효한 'Voice channel'에 자신이 들어와 있는지 확인바랍니다."
             )
             raise InvalidVoiceChannel(message="'Voice channel'에 연결하지 못하였습니다.")
         vc = ctx.guild.voice_client
@@ -101,15 +152,13 @@ class TTSCore(commands.Cog):
         if not self.voice.get(ctx.author.guild.id):
             return
         await self.voice[ctx.author.guild.id].disconnect()
-        del self.voice[ctx.author.guild.id]
+        self.voice.__delitem__(ctx.author.guild.id)
 
     async def play(self, ctx: ApplicationContext, source: discord.AudioSource):
         vc = ctx.guild.voice_client
         if not vc:
             await ctx.invoke(self.join)
         self.voice[ctx.author.guild.id].play(source)
-    
-
 
     async def _tts(self, ctx: ApplicationContext, text: str):
         """Text to Speech"""
@@ -126,6 +175,24 @@ class TTSCore(commands.Cog):
                 q_player = await TTSSource.text_to_speech(q_text)
                 await self.play(ctx=ctx, source=q_player)
                 return True
+        except Exception:
+            return Exception
 
+    async def _clova_tts(self, ctx: ApplicationContext, text: str):
+        """Text to Speech"""
+        try:
+            if not self.voice[ctx.author.guild.id].is_playing():
+
+                player = await TTSSource.clova_text_to_speech(text)
+                await self.play(ctx=ctx, source=player)
+                return True
+            else:
+                self.messageQueue[ctx.author.guild.id].append(text)
+                while self.voice[ctx.author.guild.id].is_playing():
+                    await asyncio.sleep(1)
+                q_text = self.message_queue[ctx.author.guild.id].popleft()
+                q_player = await TTSSource.clova_text_to_speech(q_text)
+                await self.play(ctx=ctx, source=q_player)
+                return True
         except Exception:
             return Exception

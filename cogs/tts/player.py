@@ -7,8 +7,9 @@ import discord
 from discord.opus import Encoder
 
 from app.extension import KakaoSpeechAPI
+from app.extension.clova import ClovaTTS
 
-KSA = KakaoSpeechAPI(os.environ.get("KAKAO_SPEECH_API_KEY"))
+KSA = KakaoSpeechAPI(os.environ.get("ZERODAY_TTS_KAKAO_API_KEY"))
 
 
 class FFmpegPCMAudio(discord.AudioSource):
@@ -77,6 +78,14 @@ class TTSSource(discord.PCMVolumeTransformer):
     @classmethod
     async def text_to_speech(cls, text):
         data = await KSA.text_to_speech(source=text)
+        return cls(
+            FFmpegPCMAudio(data, pipe=True, options='-loglevel "quiet"'), volume=0.5
+        )
+
+    @classmethod
+    async def clova_text_to_speech(cls, text):
+        source = ClovaTTS()
+        data = await source.text_to_speech(text)
         return cls(
             FFmpegPCMAudio(data, pipe=True, options='-loglevel "quiet"'), volume=0.5
         )
