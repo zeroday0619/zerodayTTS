@@ -1,3 +1,4 @@
+from abc import ABCMeta
 from typing import List, Optional
 
 from discord.flags import Intents
@@ -6,7 +7,7 @@ from app.services import ZerodayCore
 from app.services.logger import LogDecorator
 
 
-class ZerodayTTS(ZerodayCore):
+class ZerodayTTS(ZerodayCore, metaclass=ABCMeta):
     __slots__ = ("message", "intents")
 
     def __init__(
@@ -18,7 +19,7 @@ class ZerodayTTS(ZerodayCore):
         **kwargs
     ):
         self.intents = intents
-        super().__init__(message, discord_token, *args, **kwargs)
+        super().__init__(message, intents, discord_token, *args, **kwargs)
 
     def database(self):
         db = self._database

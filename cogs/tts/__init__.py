@@ -1,3 +1,4 @@
+import asyncio
 from typing import Type
 
 from discord import ApplicationContext, Option
@@ -27,8 +28,13 @@ def check_channel():
             tts_channel_id = source[3]
         except Exception as e:
             logger.error(msg=f"ERROR: {e}")
+            await ctx.respond("DATABASE ERROR - 지원 => @zeroday0619#2080")
             return False
-        return ctx.channel.id == tts_channel_id
+        status = ctx.channel.id == tts_channel_id
+        if not status:
+            await ctx.respond("권한이 없는 채널 입니다.")
+            return status
+        return status
 
     return commands.check(predicate)
 
@@ -37,9 +43,9 @@ class TTS(TTSCore):
     __slots__ = ("bot", "voice", "messageQueue")
 
     def __init__(self, bot: Bot):
-        super(TTS, self).__init__(bot)
         self.database = app.database()
         self.logger = generate_log()
+        super(TTS, self).__init__(bot)
 
     @slash_command()
     @has_permissions(administrator=True)
@@ -70,15 +76,43 @@ class TTS(TTSCore):
             return await ctx.respond("System Error")
 
     @slash_command()
+    @has_permissions(administrator=True)
+    async def unregister(self, ctx: ApplicationContext):
+        """TTS 전용 채널 삭제"""
+        try:
+            delete = servers.delete()
+            query = delete.where(servers.c.tts_channel_id == ctx.channel.id)
+            await self.database.execute(query=query)
+            return await ctx.respond("등록 해제 성공")
+        except IntegrityError as code:
+            co = list(code.args)
+            self.logger.warning(msg=f"{co[1]} | ERROR CODE: {co[0]}")
+            return await ctx.respond("등록 데이터가 없습니다.")
+        except ProgrammingError as code:
+            self.logger.error(f"ERROR: {code}")
+            return await ctx.respond("등록 해제 실패")
+        except AssertionError as code:
+            co = list(code.args)
+            self.logger.error(msg=f"{' '.join(co)}")
+            return await ctx.respond("System Error")
+
+    def _kakao_tts_status(self, status):
+        self._kakao_status = status
+
+    def _clova_tts_status(self, status):
+        self._clova_status = status
+
+    @slash_command()
     @check_channel()
     async def tts(
         self, ctx: ApplicationContext, *, text: Option(str, "text", required=True)
     ):
         await self.join(ctx)
-        status = await self._tts(ctx, text)
-        if status == Type[Exception]:
+        proc = asyncio.gather(self._tts(ctx, text, self._kakao_tts_status))
+        await proc
+        if self._kakao_status == Type[Exception]:
             return await ctx.respond("오류가 발생했습니다.")
-        if status:
+        if self._kakao_status:
             return await ctx.respond(f"[**{ctx.author.name}**] >> {text}")
 
     @slash_command()
@@ -87,10 +121,13 @@ class TTS(TTSCore):
         self, ctx: ApplicationContext, *, text: Option(str, "text", required=True)
     ):
         await self.join(ctx)
-        status = await self._clova_tts(ctx, text)
-        if status == Type[Exception]:
+        proc = asyncio.gather(
+            self._clova_tts(ctx, text, self._clova_tts_status), return_exceptions=True
+        )
+        await proc
+        if self._clova_status == Type[Exception]:
             return await ctx.respond("오류가 발생했습니다.")
-        if status:
+        if self._clova_status:
             return await ctx.respond(f"[**{ctx.author.name}**] >> {text}")
 
     @slash_command()
@@ -100,7 +137,7 @@ class TTS(TTSCore):
             await self.join(ctx)
         except Exception:
             return await ctx.respond("오류가 발생했습니다.")
-        await ctx.respond(f"{ctx.author.name}님 정상적으로 보이스 채널에 연결되었습니다.")
+        return await ctx.respond(f"{ctx.author.name}님 정상적으로 보이스 채널에 연결되었습니다.")
 
     @slash_command()
     @check_channel()

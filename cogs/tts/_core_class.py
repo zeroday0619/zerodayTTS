@@ -160,13 +160,13 @@ class TTSCore(commands.Cog):
             await ctx.invoke(self.join)
         self.voice[ctx.author.guild.id].play(source)
 
-    async def _tts(self, ctx: ApplicationContext, text: str):
+    async def _tts(self, ctx: ApplicationContext, text: str, status):
         """Text to Speech"""
         try:
             if not self.voice[ctx.author.guild.id].is_playing():
                 player = await TTSSource.text_to_speech(text)
                 await self.play(ctx=ctx, source=player)
-                return True
+                return status(True)
             else:
                 self.messageQueue[ctx.author.guild.id].append(text)
                 while self.voice[ctx.author.guild.id].is_playing():
@@ -174,18 +174,18 @@ class TTSCore(commands.Cog):
                 q_text = self.message_queue[ctx.author.guild.id].popleft()
                 q_player = await TTSSource.text_to_speech(q_text)
                 await self.play(ctx=ctx, source=q_player)
-                return True
+                return status(True)
         except Exception:
-            return Exception
+            return status(Exception)
 
-    async def _clova_tts(self, ctx: ApplicationContext, text: str):
+    async def _clova_tts(self, ctx: ApplicationContext, text: str, status):
         """Text to Speech"""
         try:
             if not self.voice[ctx.author.guild.id].is_playing():
 
                 player = await TTSSource.clova_text_to_speech(text)
                 await self.play(ctx=ctx, source=player)
-                return True
+                return status(True)
             else:
                 self.messageQueue[ctx.author.guild.id].append(text)
                 while self.voice[ctx.author.guild.id].is_playing():
@@ -193,6 +193,6 @@ class TTSCore(commands.Cog):
                 q_text = self.message_queue[ctx.author.guild.id].popleft()
                 q_player = await TTSSource.clova_text_to_speech(q_text)
                 await self.play(ctx=ctx, source=q_player)
-                return True
+                return status(True)
         except Exception:
-            return Exception
+            return status(Exception)

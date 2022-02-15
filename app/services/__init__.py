@@ -51,7 +51,10 @@ class ZerodayCore(AutoShardedBot, metaclass=ABCMeta):
     async def change_status(self):
         msg = self.message
         await self.change_presence(
-            status=discord.Status.online, activity=discord.Game(name=next(msg))
+            status=discord.Status.streaming,
+            activity=discord.Activity(
+                name=next(msg), type=discord.ActivityType.playing
+            ),
         )
 
     def launch(self):
