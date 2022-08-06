@@ -1,7 +1,7 @@
 import discord
-from discord import ApplicationContext
+from discord.ext.commands import Context
 from discord.ext import commands
-from discord.ext.commands import slash_command
+from discord.ext.commands import hybrid_command
 
 from app.services.logger import generate_log
 
@@ -11,13 +11,13 @@ class System(commands.Cog):
         self.bot = bot
         self.logger = generate_log()
 
-    @slash_command()
-    async def ping(self, ctx: ApplicationContext):
+    @hybrid_command()
+    async def ping(self, ctx: Context):
         """Latency"""
-        await ctx.respond(f"Latency: {round(self.bot.latency * 1000)}ms")
+        await ctx.send(f"Latency: {round(self.bot.latency * 1000)}ms")
 
-    @slash_command()
-    async def license(self, ctx: ApplicationContext):
+    @hybrid_command()
+    async def license(self, ctx: Context):
         """License"""
         embed = discord.Embed(
             title="zerodayTTS",
@@ -36,8 +36,8 @@ class System(commands.Cog):
             value="[github.com/zeroday0619](https://github.com/zeroday0619)",
         )
         embed.set_footer(text="Powered by Kakao Speech API")
-        await ctx.respond(embed=embed)
+        await ctx.send(embed=embed)
 
 
-def setup(bot):
-    bot.add_cog(System(bot))
+async def setup(bot):
+    await bot.add_cog(System(bot))

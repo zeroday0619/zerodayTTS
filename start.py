@@ -1,3 +1,4 @@
+import asyncio
 from discord import Intents
 
 from app import ZerodayTTS
@@ -25,5 +26,4 @@ app = ZerodayTTS(
         integrations=True,
     ),
 )
-app.load_extensions(["cogs.system", "cogs.tts"])
 app.launch()

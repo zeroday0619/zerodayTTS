@@ -1,8 +1,6 @@
 from abc import ABCMeta
 from typing import List, Optional
-
 from discord.flags import Intents
-
 from app.services import ZerodayCore
 from app.services.logger import LogDecorator
 
@@ -21,16 +19,13 @@ class ZerodayTTS(ZerodayCore, metaclass=ABCMeta):
         self.intents = intents
         super().__init__(message, intents, discord_token, *args, **kwargs)
 
-    def database(self):
-        db = self._database
-        if not db.is_connected:
-            return db
-        return db
+    async def on_ready(self):
+        await self.load_extensions(["cogs.system", "cogs.tts"])
 
     @LogDecorator
-    def load_extensions(self, cogs: Optional[List[str]]) -> None:
+    async def load_extensions(self, cogs: Optional[List[str]]) -> None:
         for cog in cogs:
             if cog is None:
                 return None
-            self.load_extension(cog)
+            await self.load_extension(cog)
         return None
