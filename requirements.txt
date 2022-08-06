@@ -2,7 +2,7 @@ Cython==0.29.32
 git+https://github.com/Pycord-Development/pycord.git
 rich==12.5.1
 kss==1.3.1
-databases[mysql]==0.5.5
+databases[mysql]==0.6.0
 langdetect==1.0.9
 NaverTTS>=0.2.0
 pynacl
