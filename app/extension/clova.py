@@ -13,12 +13,10 @@ class ClovaTTS:
     async def text_to_speech(self, text: str):
         try:
             source = MicrosoftTTS(api_key=os.environ.get("ms_key"))
-            msg = BytesIO()
+
             _ssml = source.create_ssml(
-                lang="ko-KR", gender="Female", name="ko-KR-SunHiNeural"
+                lang="ko-KR", gender="Female", name="ko-KR-SunHiNeural", text=text
             )
-            await source.write_to_fp(ssml_text=_ssml, _io=msg)
-            msg.seek(0)
-            return msg.read()
+            return await source.write_to_fp(ssml_text=_ssml)
         except Exception as e:
             self.logger.error(e)
