@@ -17,6 +17,6 @@ class ClovaTTS:
             _ssml = source.create_ssml(
                 lang="ko-KR", gender="Female", name="ko-KR-SunHiNeural", text=text
             )
-            return await source.write_to_fp(ssml_text=_ssml)
+            return await source.speach(ssml_text=_ssml)
         except Exception as e:
             self.logger.error(e)
