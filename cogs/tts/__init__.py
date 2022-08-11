@@ -1,8 +1,7 @@
+from discord.ext.commands import Bot, hybrid_command
+
 from app.services.logger import generate_log
 from cogs.tts._core_class import TTSCore
-from discord.ext.commands import Bot
-from discord.ext.commands import hybrid_command
-
 
 FFMPEG_OPTIONS = {
     "options": "-y",

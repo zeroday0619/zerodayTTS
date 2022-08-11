@@ -1,8 +1,8 @@
-from app.services.logger import generate_log
 import discord
 from discord.ext import commands
-from discord.ext.commands import Context
-from discord.ext.commands import hybrid_command
+from discord.ext.commands import Context, hybrid_command
+
+from app.services.logger import generate_log
 
 
 class System(commands.Cog):

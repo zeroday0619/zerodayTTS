@@ -1,7 +1,8 @@
 import os
 
-from app.services.logger import generate_log
 from AzureTTS import MicrosoftTTS
+
+from app.services.logger import generate_log
 
 
 class MSAzureTTS:

@@ -1,8 +1,6 @@
-import asyncio
-
-from app import ZerodayTTS
 from discord import Intents
 
+from app import ZerodayTTS
 
 app = ZerodayTTS(
     message=[

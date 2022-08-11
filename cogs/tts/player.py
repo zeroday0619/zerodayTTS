@@ -1,14 +1,13 @@
-from io import BytesIO
 import os
+from io import BytesIO
 from shlex import split
-from subprocess import PIPE
-from subprocess import Popen
+from subprocess import PIPE, Popen
 
-from app.extension import KakaoSpeechAPI
-from app.extension.clova import MSAzureTTS
 import discord
 from discord.opus import Encoder
 
+from app.extension import KakaoSpeechAPI
+from app.extension.clova import MSAzureTTS
 
 KSA = KakaoSpeechAPI(os.environ.get("ZERODAY_TTS_KAKAO_API_KEY"))
 

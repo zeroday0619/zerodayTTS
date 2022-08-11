@@ -1,9 +1,10 @@
 from abc import ABCMeta
 from typing import List, Optional
 
+from discord.flags import Intents
+
 from app.services import ZerodayCore
 from app.services.logger import LogDecorator
-from discord.flags import Intents
 
 
 class ZerodayTTS(ZerodayCore, metaclass=ABCMeta):

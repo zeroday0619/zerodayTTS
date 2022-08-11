@@ -3,16 +3,15 @@ from collections import deque
 from collections.abc import MutableMapping
 from typing import Optional
 
-from app.error import InvalidVoiceChannel
+import discord
+from discord.channel import VoiceChannel
+from discord.ext import commands, tasks
+from discord.ext.commands.context import Context
+from discord.voice_client import VoiceClient
+
 from app.error import VoiceConnectionError
 from app.services.logger import generate_log
 from cogs.tts.player import TTSSource
-import discord
-from discord.channel import VoiceChannel
-from discord.ext import commands
-from discord.ext import tasks
-from discord.ext.commands.context import Context
-from discord.voice_client import VoiceClient
 
 
 class CustomDict(MutableMapping):

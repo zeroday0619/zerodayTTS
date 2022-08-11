@@ -1,13 +1,16 @@
-from aiohttp import ClientSession
-from app.extension.kakao_error import BAD_GATEWAY_EXCEPTION
-from app.extension.kakao_error import BAD_REQUEST_EXCEPTION
-from app.extension.kakao_error import FORBIDDEN_EXCEPTION
-from app.extension.kakao_error import INTERNAL_SERVER_ERROR_EXCEPTION
-from app.extension.kakao_error import SERVICE_UNAVAILABLE_EXCEPTION
-from app.extension.kakao_error import TOO_MANY_REQUEST_EXCEPTION
-from app.extension.kakao_error import UNAUTHORIZED_EXCEPTION
-from app.services.logger import LogDecorator
 import kss
+from aiohttp import ClientSession
+
+from app.extension.kakao_error import (
+    BAD_GATEWAY_EXCEPTION,
+    BAD_REQUEST_EXCEPTION,
+    FORBIDDEN_EXCEPTION,
+    INTERNAL_SERVER_ERROR_EXCEPTION,
+    SERVICE_UNAVAILABLE_EXCEPTION,
+    TOO_MANY_REQUEST_EXCEPTION,
+    UNAUTHORIZED_EXCEPTION,
+)
+from app.services.logger import LogDecorator
 
 
 class KakaoSpeechAPI:

@@ -1,7 +1,7 @@
-from abc import ABCMeta
 import asyncio
-from itertools import cycle
 import os
+from abc import ABCMeta
+from itertools import cycle
 from typing import List
 
 import discord
