@@ -21,15 +21,15 @@ jobs:
 
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.9
+          python-version: 3.10
 
       - name: Install Cython
-        run: pip install Cython==0.29.24
+        run: pip install Cython==0.29.32
 
       - name: Install Python dependencies
         run: pip install -r requirements.txt
@@ -38,7 +38,7 @@ jobs:
         run: pip install -r requirements-dev.txt
 
       - name: Run linters
-        uses: wearerequired/lint-action@v1
+        uses: wearerequired/lint-action@v2
         with:
           black: true
           flake8: true
