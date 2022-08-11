@@ -1,12 +1,8 @@
-import asyncio
-from typing import Type
-from discord.ext import commands
-from discord.ext.commands import hybrid_command
-from discord.ext.commands import Bot, has_permissions
 from app.services.logger import generate_log
-from start import app
+from cogs.tts._core_class import TTSCore
+from discord.ext.commands import Bot
+from discord.ext.commands import hybrid_command
 
-from ._core_class import TTSCore
 
 FFMPEG_OPTIONS = {
     "options": "-y",
@@ -29,7 +25,7 @@ class TTS(TTSCore):
     @hybrid_command()
     async def tts(self, ctx, *, text):
         await self.join(ctx)
-        await self._clova_tts(ctx, text)
+        await self._azure_tts(ctx, text)
 
     @hybrid_command()
     async def connect(self, ctx):

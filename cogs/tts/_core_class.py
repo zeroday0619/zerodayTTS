@@ -2,16 +2,17 @@ import asyncio
 from collections import deque
 from collections.abc import MutableMapping
 from typing import Optional
-from asyncio import Queue
-import discord
-from discord.ext.commands.context import Context
-from discord.channel import VoiceChannel
-from discord.ext import commands, tasks
-from discord.voice_client import VoiceClient
 
-from app.error import InvalidVoiceChannel, VoiceConnectionError
+from app.error import InvalidVoiceChannel
+from app.error import VoiceConnectionError
 from app.services.logger import generate_log
 from cogs.tts.player import TTSSource
+import discord
+from discord.channel import VoiceChannel
+from discord.ext import commands
+from discord.ext import tasks
+from discord.ext.commands.context import Context
+from discord.voice_client import VoiceClient
 
 
 class CustomDict(MutableMapping):
@@ -72,6 +73,13 @@ class TTSCore(commands.Cog):
         self.voice = VoiceObject()
         self.volume = 150
 
+    @staticmethod
+    def func_state(r_func):
+        if r_func is None:
+            return False
+        else:
+            return r_func
+
     @commands.Cog.listener()
     async def on_ready(self) -> None:
         await self.check_voice_ch_active_user.start()
@@ -113,32 +121,32 @@ class TTSCore(commands.Cog):
         """Joins a voice channel."""
         if self.is_joined(ctx, ctx.author):
             return
-        try:
-            # noinspection PyProtectedMember
+
+        # noinspection PyProtectedMember
+        if self.func_state(ctx.author.guild._voice_states[ctx.author.id]):
             channel = ctx.author.guild._voice_states[ctx.author.id].channel
-        except AttributeError:
-            await ctx.send(
-                content="'Voice channel 연결하지 못하였습니다.\n 유효한 'Voice channel'에 자신이 들어와 있는지 확인바랍니다."
+        else:
+            await ctx.send(content="fail connect voice channel")
+            raise VoiceConnectionError(
+                f"Failed to join voice channel on guild {ctx.guild.id}"
             )
-            raise InvalidVoiceChannel(message="'Voice channel'에 연결하지 못하였습니다.")
-        vc = ctx.guild.voice_client
-        if vc:
-            if vc.channel.id == channel.id:
+
+        if self.func_state(ctx.guild.voice_client):
+            if ctx.guild.voice_client.channel.id == channel.id:
                 return
+
+            _voice = self.voice[ctx.author.guild.id]
+
             try:
-                _voice = self.voice[ctx.author.guild.id]
                 await _voice.move_to(channel)
             except asyncio.TimeoutError:
-                await ctx.send(
-                    content=f"Moving to channel: <{str(channel)}> timed out"
-                )
+                await ctx.send(content=f"Moving to channel: <{str(channel)}> timed out")
                 raise VoiceConnectionError(
                     f"Moving to channel: <{str(channel)}> timed out"
                 )
         else:
             try:
                 self.voice[ctx.author.guild.id] = await channel.connect()
-                self.messageQueue[ctx.author.guild.id] = deque([])
             except asyncio.TimeoutError:
                 await ctx.send(
                     content=f"Connecting to channel: <{str(channel)}> timed out"
@@ -146,6 +154,8 @@ class TTSCore(commands.Cog):
                 raise VoiceConnectionError(
                     message=f"Connecting to channel: <{str(channel)}> timed out"
                 )
+            else:
+                self.messageQueue[ctx.author.guild.id] = deque([])
 
     async def disconnect(self, ctx: Context):
         """Disconnects from voice channel."""
@@ -154,12 +164,11 @@ class TTSCore(commands.Cog):
         await self.voice[ctx.author.guild.id].disconnect()
         self.voice.__delitem__(ctx.author.guild.id)
 
-    async def play(self, ctx: Context, source: discord.AudioSource, text):
+    async def play(self, ctx: Context, source: discord.AudioSource):
         vc = ctx.guild.voice_client
         if not vc:
             await ctx.invoke(self.join)
         self.voice[ctx.author.guild.id].play(source)
-        await ctx.channel.send(f"[**{ctx.author.name}**] >> {text}")
 
     # async def _tts(self, ctx: Context, text: str, status):
     #    """Text to Speech"""
@@ -179,33 +188,29 @@ class TTSCore(commands.Cog):
     #    except Exception:
     #        return status(Exception)
 
-    async def _clova_tts(self, ctx: Context, text: str):
+    async def _azure_tts(self, ctx: Context, text: str):
         """Text to Speech"""
         try:
+            await ctx.send(f"[**{ctx.author.name}**] >> {text}")
+
             self.messageQueue[ctx.author.guild.id].append(text)
             while self.voice[ctx.author.guild.id].is_playing():
                 await asyncio.sleep(0.5)
             else:
                 print(self.messageQueue[ctx.author.guild.id])
                 if self.messageQueue[ctx.author.guild.id].__len__() < 1:
-                    q_player = await TTSSource.clova_text_to_speech(text)
+                    q_player = await TTSSource.microsoft_azure_text_to_speech(text)
                     await asyncio.wait(
-                        [
-                            asyncio.create_task(
-                                self.play(ctx=ctx, source=q_player, text=text)
-                            )
-                        ]
+                        [asyncio.create_task(self.play(ctx=ctx, source=q_player))]
                     )
                 else:
                     for _ in range(self.messageQueue[ctx.author.guild.id].__len__()):
                         q_text = self.messageQueue[ctx.author.guild.id].pop()
-                        q_player = await TTSSource.clova_text_to_speech(q_text)
+                        q_player = await TTSSource.microsoft_azure_text_to_speech(
+                            q_text
+                        )
                         await asyncio.wait(
-                            [
-                                asyncio.create_task(
-                                    self.play(ctx=ctx, source=q_player, text=text)
-                                )
-                            ]
+                            [asyncio.create_task(self.play(ctx=ctx, source=q_player))]
                         )
         except Exception as e:
-            print(e)
+            self.logger.warning(msg=f"{str(e)}")

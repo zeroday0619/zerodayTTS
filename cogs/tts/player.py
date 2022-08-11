@@ -1,13 +1,14 @@
-import os
 from io import BytesIO
+import os
 from shlex import split
-from subprocess import PIPE, Popen
+from subprocess import PIPE
+from subprocess import Popen
 
+from app.extension import KakaoSpeechAPI
+from app.extension.clova import MSAzureTTS
 import discord
 from discord.opus import Encoder
 
-from app.extension import KakaoSpeechAPI
-from app.extension.clova import ClovaTTS
 
 KSA = KakaoSpeechAPI(os.environ.get("ZERODAY_TTS_KAKAO_API_KEY"))
 
@@ -83,8 +84,8 @@ class TTSSource(discord.PCMVolumeTransformer):
         )
 
     @classmethod
-    async def clova_text_to_speech(cls, text):
-        source = ClovaTTS()
+    async def microsoft_azure_text_to_speech(cls, text):
+        source = MSAzureTTS()
         data = await source.text_to_speech(text)
         return cls(
             FFmpegPCMAudio(data, pipe=True, options='-loglevel "quiet"'), volume=0.5

@@ -1,12 +1,10 @@
-from io import BytesIO
-
 import os
-from AzureTTS import MicrosoftTTS
 
 from app.services.logger import generate_log
+from AzureTTS import MicrosoftTTS
 
 
-class ClovaTTS:
+class MSAzureTTS:
     def __init__(self):
         self.logger = generate_log()
 
