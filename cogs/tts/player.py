@@ -83,9 +83,9 @@ class TTSSource(discord.PCMVolumeTransformer):
         )
 
     @classmethod
-    async def microsoft_azure_text_to_speech(cls, text):
+    async def microsoft_azure_text_to_speech(cls, text, language_code: str):
         source = MSAzureTTS()
-        data = await source.text_to_speech(text)
+        data = await source.text_to_speech(text, language_code=language_code)
         return cls(
             FFmpegPCMAudio(data, pipe=True, options='-loglevel "quiet"'), volume=0.5
         )

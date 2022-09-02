@@ -1,7 +1,9 @@
+import langid
 from discord.ext.commands import Bot, hybrid_command
 
 from app.services.logger import generate_log
 from cogs.tts._core_class import TTSCore
+
 
 FFMPEG_OPTIONS = {
     "options": "-y",
@@ -23,8 +25,21 @@ class TTS(TTSCore):
 
     @hybrid_command()
     async def tts(self, ctx, *, text):
+        u_lang = langid.classify(text)[0]
         await self.join(ctx)
-        await self._azure_tts(ctx, text)
+        match u_lang:
+            case "ko":
+                await self._azure_tts(ctx, text, "ko-KR")
+            case "en":
+                await self._azure_tts(ctx, text, "en-US")
+            case "ja":
+                await self._azure_tts(ctx, text, "ja-JP")
+            case "zh":
+                await self._azure_tts(ctx, text, "zh-CN")
+            case "fr":
+                await self._azure_tts(ctx, text, "fr-FR")
+            case _:
+                await self._azure_tts(ctx, "unknown language", "en-US")
 
     @hybrid_command()
     async def connect(self, ctx):

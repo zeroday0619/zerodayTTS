@@ -7,3 +7,5 @@ databases[mysql]==0.6.1
 langdetect==1.0.9
 NaverTTS>=0.2.0
 pynacl
+
+langid

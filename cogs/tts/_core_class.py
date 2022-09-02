@@ -187,26 +187,27 @@ class TTSCore(commands.Cog):
     #    except Exception:
     #        return status(Exception)
 
-    async def _azure_tts(self, ctx: Context, text: str):
+    async def _azure_tts(self, ctx: Context, text: str, lang: str):
         """Text to Speech"""
         try:
             await ctx.send(f"[**{ctx.author.name}**] >> {text}")
 
-            self.messageQueue[ctx.author.guild.id].append(text)
+            self.messageQueue[ctx.author.guild.id].append([text, lang])
             while self.voice[ctx.author.guild.id].is_playing():
                 await asyncio.sleep(0.5)
             else:
                 print(self.messageQueue[ctx.author.guild.id])
-                if self.messageQueue[ctx.author.guild.id].__len__() < 1:
-                    q_player = await TTSSource.microsoft_azure_text_to_speech(text)
+                if self.messageQueue[ctx.author.guild.id].__len__() < 2:
+                    q_player = await TTSSource.microsoft_azure_text_to_speech(text=text, language_code=lang)
                     await asyncio.wait(
                         [asyncio.create_task(self.play(ctx=ctx, source=q_player))]
                     )
                 else:
                     for _ in range(self.messageQueue[ctx.author.guild.id].__len__()):
                         q_text = self.messageQueue[ctx.author.guild.id].pop()
+                        print(q_text[1])
                         q_player = await TTSSource.microsoft_azure_text_to_speech(
-                            q_text
+                            text=q_text[0], language_code=q_text[1]
                         )
                         await asyncio.wait(
                             [asyncio.create_task(self.play(ctx=ctx, source=q_player))]
