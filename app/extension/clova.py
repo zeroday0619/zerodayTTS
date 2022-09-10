@@ -8,11 +8,9 @@ from app.services.logger import generate_log
 class MSAzureTTS:
     def __init__(self):
         self.logger = generate_log()
-    
+
     async def select_language(self, language_code: str):
-        voices = await MicrosoftTTS(
-            api_key=os.environ.get("ms_key")
-        ).get_voice_list()
+        voices = await MicrosoftTTS(api_key=os.environ.get("ms_key")).get_voice_list()
         """
         Get voice list structure
 

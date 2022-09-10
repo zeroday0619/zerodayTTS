@@ -198,7 +198,9 @@ class TTSCore(commands.Cog):
             else:
                 print(self.messageQueue[ctx.author.guild.id])
                 if self.messageQueue[ctx.author.guild.id].__len__() < 1:
-                    q_player = await TTSSource.microsoft_azure_text_to_speech(text=text, language_code=lang)
+                    q_player = await TTSSource.microsoft_azure_text_to_speech(
+                        text=text, language_code=lang
+                    )
                     await asyncio.wait(
                         [asyncio.create_task(self.play(ctx=ctx, source=q_player))]
                     )
