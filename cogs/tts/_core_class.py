@@ -187,10 +187,13 @@ class TTSCore(commands.Cog):
     #    except Exception:
     #        return status(Exception)
 
-    async def _azure_tts(self, ctx: Context, text: str, lang: str):
+    async def _azure_tts(self, ctx: Context, text: str, lang: str, pass_text: str | None = None):
         """Text to Speech"""
         try:
-            await ctx.send(f"[**{ctx.author.name}**] >> {text}")
+            if not pass_text:
+                await ctx.send(f"[**{ctx.author.name}**] >> {pass_text}")
+            else:
+                await ctx.send(f"[**{ctx.author.name}**] >> {text}")
 
             self.messageQueue[ctx.author.guild.id].append([text, lang])
             while self.voice[ctx.author.guild.id].is_playing():
