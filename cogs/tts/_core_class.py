@@ -190,7 +190,7 @@ class TTSCore(commands.Cog):
     async def _azure_tts(self, ctx: Context, text: str, lang: str, pass_text: str | None = None):
         """Text to Speech"""
         try:
-            if not pass_text:
+            if pass_text is not None:
                 await ctx.send(f"[**{ctx.author.name}**] >> {pass_text}")
             else:
                 await ctx.send(f"[**{ctx.author.name}**] >> {text}")
