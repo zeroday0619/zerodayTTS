@@ -46,7 +46,7 @@ class MSAzureTTS:
             source = MicrosoftTTS(api_key=os.environ.get("ms_key"))
             names = await self.select_language(language_code)
             _ssml = source.create_ssml(
-                lang=language_code, gender="Female", name=names[0], text=text, role="Girl"
+                text=text, lang=language_code, gender="Female", role="Girl", name=names[0]
             )
             return await source.speach(ssml_text=_ssml)
         except Exception as e:
