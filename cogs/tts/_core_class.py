@@ -225,7 +225,7 @@ class TTSCore(commands.Cog):
     
     def discord_mention_message(self, message: discord.Message):
         if message.type == discord.MessageType.default:
-            return {"role": message.author.name, "content": message}
+            return {"role": "user", "content": message.content}
         return None      
 
     def is_last_message_stale(
@@ -242,7 +242,8 @@ class TTSCore(commands.Cog):
         channel_messages = [
             {"role": "system", "content": "Bixby. How can I help you?"},
             {"role": "user", "content": message}
-        ]        
+        ]
+        ctx.message.content        
         async for messages in channel.history(limit=MAX_THREAD_MESSAGES):
             channel_messages.append(self.discord_mention_message(messages))
         channel_messages = [x for x in channel_messages if x is not None]
