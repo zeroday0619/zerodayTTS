@@ -241,7 +241,7 @@ class TTSCore(commands.Cog):
     async def _bixby(self, ctx: Context, message: str):
         channel = ctx.channel
         channel_messages = [
-            {"role": "system", "content": "Hello, I'm Bixby. How can I help you?"},
+            {"role": "system", "content": "Bixby. How can I help you?"},
             {"role": "user", "content": message}
         ]        
         async for messages in channel.history(limit=MAX_THREAD_MESSAGES):
