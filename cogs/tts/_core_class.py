@@ -224,8 +224,7 @@ class TTSCore(commands.Cog):
             self.logger.warning(msg=f"{str(e)}")
     
     def discord_mention_message(self, message: discord.Message):
-        print(message.type)
-        if message.type == discord.MessageType.chat_input_command:
+        if message.type == discord.MessageType.default:
             return {"role": message.author.name, "content": message}
         return None      
 

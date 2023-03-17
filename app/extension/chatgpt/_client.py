@@ -5,7 +5,7 @@ from enum import Enum
 from dataclasses import dataclass
 
 SEPARATOR_TOKEN = "<|endoftext|>"
-MAX_THREAD_MESSAGES = 200
+MAX_THREAD_MESSAGES = 50
 MAX_CHARS_PER_REPLY_MSG = (1500) # discord has a 2k limit, we just break message into 1.5k
 
 class CompletionResult(Enum):
