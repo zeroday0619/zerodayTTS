@@ -264,7 +264,7 @@ class TTSCore(commands.Cog):
                     await self._azure_tts(ctx=ctx, text=reply_text, lang="en-US")
                 case _:
                     await self._azure_tts(ctx=ctx, text=reply_text, lang="ko-KR")
-            await ctx.reply_text(content=reply_text)
+            await ctx.send(content=reply_text)
         else:
             u_lang = langid.classify(status_text)[0]
             match u_lang:
@@ -274,4 +274,4 @@ class TTSCore(commands.Cog):
                     await self._azure_tts(ctx=ctx, text=reply_text, lang="en-US")
                 case _:
                     await self._azure_tts(ctx=ctx, text=reply_text, lang="ko-KR")
-            await ctx.reply_text(content=status_text)
+            await ctx.send(content=status_text)
