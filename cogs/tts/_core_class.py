@@ -13,7 +13,7 @@ from app.error import VoiceConnectionError
 from app.services.logger import generate_log
 from cogs.tts.player import TTSSource
 from app.extension.chatgpt import OpenAIClient
-from app.extension.chatgpt._client import Message, MAX_THREAD_MESSAGES, CompletionData, CompletionResult
+from app.extension.chatgpt._client import MAX_THREAD_MESSAGES, CompletionData, CompletionResult
 
 
 class CustomDict(MutableMapping):
@@ -224,8 +224,8 @@ class TTSCore(commands.Cog):
             self.logger.warning(msg=f"{str(e)}")
     
     def discord_mention_message(self, message: discord.Message):
-        if message.interaction.type == discord.InteractionType.application_command:
-            return Message(user=message.author.name, message=message.content)
+        if message.type == discord.InteractionType.application_command:
+            return {"role": message.author.name, "content": message}
         return None      
 
     def is_last_message_stale(
@@ -239,15 +239,18 @@ class TTSCore(commands.Cog):
 
     async def _bixby(self, ctx: Context, message: str):
         channel = ctx.channel
-        channel_messages = [Message(user=ctx.author.name, text=message)]        
-        channel_messages.append(self.discord_mention_message(message) async for message in channel.history(limit=MAX_THREAD_MESSAGES))
+        channel_messages = [
+            {"role": "system", "content": "Hello, I'm Bixby. How can I help you?"},
+            {"role": "user", "content": message}
+        ]        
+        async for messages in channel.history(limit=MAX_THREAD_MESSAGES):
+            channel_messages.append(self.discord_mention_message(messages))
         channel_messages = [x for x in channel_messages if x is not None]
         channel_messages.reverse()
 
-        async with channel.typing():
-            response_data: CompletionData = await self.opneai.generate_completion_response(
-                message=channel_messages
-            )
+        response_data: CompletionData = self.opneai.generate_completion_response(
+            message=channel_messages
+        )
         
         status = response_data.status
         reply_text = response_data.reply_text
@@ -262,7 +265,6 @@ class TTSCore(commands.Cog):
                     await self._azure_tts(ctx=ctx, text=reply_text, lang="en-US")
                 case _:
                     await self._azure_tts(ctx=ctx, text=reply_text, lang="ko-KR")
-            await ctx.send(content=reply_text)
         else:
             u_lang = langid.classify(status_text)[0]
             match u_lang:
@@ -272,4 +274,3 @@ class TTSCore(commands.Cog):
                     await self._azure_tts(ctx=ctx, text=reply_text, lang="en-US")
                 case _:
                     await self._azure_tts(ctx=ctx, text=reply_text, lang="ko-KR")
-            await ctx.send(content=status_text)
