@@ -239,6 +239,7 @@ class TTSCore(commands.Cog):
 
     async def _bixby(self, ctx: Context, message: str):
         channel = ctx.channel
+        channel_messages = []
         messages = [Message(user=ctx.author.name, text=message)]        
         channel_messages.append(messages)
         channel_messages.append(self.discord_mention_message(message) async for message in channel.history(limit=MAX_THREAD_MESSAGES))
