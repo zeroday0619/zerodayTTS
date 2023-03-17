@@ -238,22 +238,15 @@ class TTSCore(commands.Cog):
         )
 
     async def _bixby(self, ctx: Context, message: str):
-        channel = ctx.channel
         channel_messages = [
             {"role": "system", "content": "Bixby"},
             {"role": "user", "content": message}
         ]
-        ctx.message.content        
-        async for messages in channel.history(limit=MAX_THREAD_MESSAGES):
-            channel_messages.append(self.discord_mention_message(messages))
         channel_messages = [x for x in channel_messages if x is not None]
         channel_messages.reverse()
-        print(channel_messages)
-
         response_data: CompletionData = self.opneai.generate_completion_response(
             message=channel_messages
         )
-        
         status = response_data.status
         reply_text = response_data.reply_text
         status_text = response_data.status_text
