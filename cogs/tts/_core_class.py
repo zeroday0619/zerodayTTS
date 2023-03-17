@@ -2,7 +2,7 @@ import asyncio
 from collections import deque
 from collections.abc import MutableMapping
 from typing import Optional
-
+import langid
 import discord
 from discord.channel import VoiceChannel
 from discord.ext import commands, tasks
@@ -12,6 +12,8 @@ from discord.voice_client import VoiceClient
 from app.error import VoiceConnectionError
 from app.services.logger import generate_log
 from cogs.tts.player import TTSSource
+from app.extension.chatgpt import OpenAIClient
+from app.extension.chatgpt._client import Message, MAX_THREAD_MESSAGES, CompletionData, CompletionResult
 
 
 class CustomDict(MutableMapping):
@@ -71,6 +73,7 @@ class TTSCore(commands.Cog):
         self.messageQueue: CustomDict[Optional[dict[int, deque]]] = CustomDict()
         self.voice = VoiceObject()
         self.volume = 150
+        self.opneai = OpenAIClient()
 
     @staticmethod
     def func_state(r_func):
@@ -219,3 +222,55 @@ class TTSCore(commands.Cog):
                         )
         except Exception as e:
             self.logger.warning(msg=f"{str(e)}")
+    
+    def discord_mention_message(self, message: discord.Message):
+        if message.interaction.type == discord.InteractionType.application_command:
+            return Message(user=message.author.name, message=message.content)
+        return None      
+
+    def is_last_message_stale(
+        self, last_message: discord.Message
+    ) -> bool:
+        return (
+            last_message
+            and last_message.author
+            and last_message.author.id != self.bot.user.id
+        )
+
+    async def _bixby(self, ctx: Context, *, text: str):
+        channel = ctx.channel        
+        channel_messages = [
+            self.discord_mention_message(message) async for message in channel.history(limit=MAX_THREAD_MESSAGES)
+        ]
+        channel_messages = [x for x in channel_messages if x is not None]
+        channel_messages.reverse()
+
+        async with channel.typing():
+            response_data: CompletionData = await self.opneai.generate_completion_response(
+                message=channel_messages
+            )
+        
+        status = response_data.status
+        reply_text = response_data.reply_text
+        status_text = response_data.status_text
+
+        if status is CompletionResult.OK:
+            u_lang = langid.classify(reply_text)[0]
+            match u_lang:
+                case "ko":
+                    await self._azure_tts(ctx=ctx, text=reply_text, lang="ko-KR")
+                case "en":
+                    await self._azure_tts(ctx=ctx, text=reply_text, lang="en-US")
+                case _:
+                    await self._azure_tts(ctx=ctx, text=reply_text, lang="ko-KR")
+            await ctx.reply_text(content=reply_text)
+        else:
+            u_lang = langid.classify(status_text)[0]
+            match u_lang:
+                case "ko":
+                    await self._azure_tts(ctx=ctx, text=reply_text, lang="ko-KR")
+                case "en":
+                    await self._azure_tts(ctx=ctx, text=reply_text, lang="en-US")
+                case _:
+                    await self._azure_tts(ctx=ctx, text=reply_text, lang="ko-KR")
+            await ctx.reply_text(content=status_text)

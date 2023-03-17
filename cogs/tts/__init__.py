@@ -1,6 +1,5 @@
 import langid
-from discord.ext.commands import Bot, hybrid_command
-
+from discord.ext.commands import Bot, hybrid_command, command
 from app.services.logger import generate_log
 from cogs.tts._core_class import TTSCore
 
@@ -39,6 +38,11 @@ class TTS(TTSCore):
                 await self._azure_tts(ctx=ctx, text=text, lang="fr-FR")
             case _:
                 await self._azure_tts(ctx=ctx, text="unknown language", lang="en-US", pass_text=text)
+
+    @hybrid_command(name="bixby")
+    async def bixby(self, ctx, *, text):
+        await self.join(ctx)
+        await self._bixby(ctx, text)
 
     @hybrid_command()
     async def connect(self, ctx):
