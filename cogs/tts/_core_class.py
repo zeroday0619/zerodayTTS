@@ -237,11 +237,11 @@ class TTSCore(commands.Cog):
             and last_message.author.id != self.bot.user.id
         )
 
-    async def _bixby(self, ctx: Context, *, text: str):
-        channel = ctx.channel        
-        channel_messages = [
-            self.discord_mention_message(message) async for message in channel.history(limit=MAX_THREAD_MESSAGES)
-        ]
+    async def _bixby(self, ctx: Context, message: str):
+        channel = ctx.channel
+        messages = [Message(user=ctx.author.name, text=message)]        
+        channel_messages.append(messages)
+        channel_messages.append(self.discord_mention_message(message) async for message in channel.history(limit=MAX_THREAD_MESSAGES))
         channel_messages = [x for x in channel_messages if x is not None]
         channel_messages.reverse()
 

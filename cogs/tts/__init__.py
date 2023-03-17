@@ -40,9 +40,9 @@ class TTS(TTSCore):
                 await self._azure_tts(ctx=ctx, text="unknown language", lang="en-US", pass_text=text)
 
     @hybrid_command(name="bixby")
-    async def bixby(self, ctx, *, text):
+    async def bixby(self, ctx, *, message: str):
         await self.join(ctx)
-        await self._bixby(ctx, text)
+        await self._bixby(ctx, message)
 
     @hybrid_command()
     async def connect(self, ctx):
