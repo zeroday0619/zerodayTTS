@@ -203,15 +203,14 @@ class TTSCore(commands.Cog):
             while self.voice[ctx.author.guild.id].is_playing():
                 await asyncio.sleep(0.5)
             else:
-                self.logger.info(f"{self.messageQueue[ctx.author.guild.id]}")
                 async with self.lock:
+                    self.logger.info(f"{self.messageQueue[ctx.author.guild.id]}")
                     q_text = self.messageQueue[ctx.author.guild.id].popleft()
                     q_player = await TTSSource.microsoft_azure_text_to_speech(
-                        text=q_text, language_code=lang
+                        text=q_text[0], language_code=q_text[1]
                     )
                     await asyncio.wait(
                         [asyncio.create_task(self.play(ctx=ctx, source=q_player))]
                     )
-
         except Exception as e:
             self.logger.warning(msg=f"{str(e)}")
