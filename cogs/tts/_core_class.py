@@ -70,6 +70,7 @@ class TTSCore(commands.Cog):
         self.logger = generate_log()
         self.messageQueue: CustomDict[Optional[dict[int, deque]]] = CustomDict()
         self.voice = VoiceObject()
+        self.lock = asyncio.Lock()
         self.volume = 150
 
     @staticmethod
@@ -187,7 +188,9 @@ class TTSCore(commands.Cog):
     #    except Exception:
     #        return status(Exception)
 
-    async def _azure_tts(self, ctx: Context, text: str, lang: str, pass_text: str | None = None):
+    async def _azure_tts(
+        self, ctx: Context, text: str, lang: str, pass_text: str | None = None
+    ):
         """Text to Speech"""
         try:
             if pass_text is not None:
@@ -196,26 +199,19 @@ class TTSCore(commands.Cog):
                 await ctx.send(f"[**{ctx.author.name}**] >> {text}")
 
             self.messageQueue[ctx.author.guild.id].append([text, lang])
+
             while self.voice[ctx.author.guild.id].is_playing():
                 await asyncio.sleep(0.5)
             else:
-                print(self.messageQueue[ctx.author.guild.id])
-                if self.messageQueue[ctx.author.guild.id].__len__() < 1:
+                self.logger.info(f"{self.messageQueue[ctx.author.guild.id]}")
+                async with self.lock:
+                    q_text = self.messageQueue[ctx.author.guild.id].popleft()
                     q_player = await TTSSource.microsoft_azure_text_to_speech(
-                        text=text, language_code=lang
+                        text=q_text, language_code=lang
                     )
                     await asyncio.wait(
                         [asyncio.create_task(self.play(ctx=ctx, source=q_player))]
                     )
-                else:
-                    for _ in range(self.messageQueue[ctx.author.guild.id].__len__()):
-                        q_text = self.messageQueue[ctx.author.guild.id].pop()
-                        print(q_text[1])
-                        q_player = await TTSSource.microsoft_azure_text_to_speech(
-                            text=q_text[0], language_code=q_text[1]
-                        )
-                        await asyncio.wait(
-                            [asyncio.create_task(self.play(ctx=ctx, source=q_player))]
-                        )
+
         except Exception as e:
             self.logger.warning(msg=f"{str(e)}")

@@ -38,7 +38,9 @@ class TTS(TTSCore):
             case "fr":
                 await self._azure_tts(ctx=ctx, text=text, lang="fr-FR")
             case _:
-                await self._azure_tts(ctx=ctx, text="unknown language", lang="en-US", pass_text=text)
+                await self._azure_tts(
+                    ctx=ctx, text="unknown language", lang="en-US", pass_text=text
+                )
 
     @hybrid_command()
     async def connect(self, ctx):
