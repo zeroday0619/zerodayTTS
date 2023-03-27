@@ -23,6 +23,7 @@ app = ZerodayTTS(
         invites=False,
         webhooks=False,
         integrations=True,
+        message_content=True,
     ),
 )
 app.launch()
