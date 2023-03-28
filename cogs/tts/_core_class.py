@@ -189,14 +189,23 @@ class TTSCore(commands.Cog):
     #        return status(Exception)
 
     async def _azure_tts(
-        self, ctx: Context, text: str, lang: str, pass_text: str | None = None
+        self,
+        ctx: Context,
+        text: str,
+        lang: str,
+        pass_text: str | None = None,
+        delete_after: float | None = None,
     ):
         """Text to Speech"""
         try:
             if pass_text is not None:
-                await ctx.send(f"[**{ctx.author.name}**] >> {pass_text}")
+                await ctx.send(
+                    f"[**{ctx.author.name}**] >> {pass_text}", delete_after=delete_after
+                )
             else:
-                await ctx.send(f"[**{ctx.author.name}**] >> {text}")
+                await ctx.send(
+                    f"[**{ctx.author.name}**] >> {text}", delete_after=delete_after
+                )
 
             self.messageQueue[ctx.author.guild.id].append([text, lang])
 
@@ -211,7 +220,7 @@ class TTSCore(commands.Cog):
                     )
                     while self.voice[ctx.author.guild.id].is_playing():
                         pass
-                    else:                   
+                    else:
                         await asyncio.wait(
                             [asyncio.create_task(self.play(ctx=ctx, source=q_player))]
                         )

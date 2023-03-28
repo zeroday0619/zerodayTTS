@@ -9,7 +9,7 @@ app = ZerodayTTS(
         "후원: https://toss.me/zeroday",
         "zerodayTTS 프로필 => 서버에 추가로 기술 지원 혜택을 받아보세요!",
     ],
-    command_prefix="=",
+    command_prefix="/",
     intents=Intents(
         bans=False,
         emojis=False,
