@@ -1,3 +1,5 @@
+import discord
+
 from abc import ABCMeta
 from typing import List, Optional
 
@@ -20,9 +22,19 @@ class ZerodayTTS(ZerodayCore, metaclass=ABCMeta):
     ):
         self.intents = intents
         super().__init__(message, intents, discord_token, *args, **kwargs)
+        
 
     async def on_ready(self):
         await self.load_extensions(["cogs.system", "cogs.tts"])
+        try:
+            for channel in self.get_all_channels():
+                await self.tree.sync(
+                    guild=discord.Object(id=channel.guild.id),
+                )
+                self.logger.info(f"Guild {channel.guild.name} synced")
+            self.logger.info("All guilds synced")
+        except Exception as e:
+            self.logger.error(e)
 
     @LogDecorator
     async def load_extensions(self, cogs: Optional[List[str]]) -> None:

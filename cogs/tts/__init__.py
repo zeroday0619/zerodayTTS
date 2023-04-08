@@ -1,6 +1,5 @@
 import langid
-from discord.ext.commands import Bot, hybrid_command
-
+from discord.ext.commands import Bot, hybrid_command, command
 from app.services.logger import generate_log
 from cogs.tts._core_class import TTSCore
 
@@ -75,6 +74,11 @@ class TTS(TTSCore):
                     pass_text=text,
                     delete_after=5.0,
                 )
+
+    @hybrid_command(name="bixby")
+    async def bixby(self, ctx, *, message: str):
+        await self.join(ctx)
+        await self._bixby(ctx, message)
 
     @hybrid_command()
     async def connect(self, ctx):

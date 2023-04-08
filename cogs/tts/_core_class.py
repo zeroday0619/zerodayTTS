@@ -2,7 +2,7 @@ import asyncio
 from collections import deque
 from collections.abc import MutableMapping
 from typing import Optional
-
+import langid
 import discord
 from discord.channel import VoiceChannel
 from discord.ext import commands, tasks
@@ -12,6 +12,8 @@ from discord.voice_client import VoiceClient
 from app.error import VoiceConnectionError
 from app.services.logger import generate_log
 from cogs.tts.player import TTSSource
+from app.extension.chatgpt import OpenAIClient
+from app.extension.chatgpt._client import MAX_THREAD_MESSAGES, CompletionData, CompletionResult
 
 
 class CustomDict(MutableMapping):
@@ -72,6 +74,7 @@ class TTSCore(commands.Cog):
         self.voice = VoiceObject()
         self.lock = asyncio.Lock()
         self.volume = 150
+        self.opneai = OpenAIClient()
 
     @staticmethod
     def func_state(r_func):
@@ -226,3 +229,50 @@ class TTSCore(commands.Cog):
                         )
         except Exception as e:
             self.logger.warning(msg=f"{str(e)}")
+    
+    def discord_mention_message(self, message: discord.Message):
+        if message.type == discord.MessageType.default:
+            return {"role": "user", "content": message.content}
+        return None      
+
+    def is_last_message_stale(
+        self, last_message: discord.Message
+    ) -> bool:
+        return (
+            last_message
+            and last_message.author
+            and last_message.author.id != self.bot.user.id
+        )
+
+    async def _bixby(self, ctx: Context, message: str):
+        channel_messages = [
+            {"role": "system", "content": "Bixby"},
+            {"role": "user", "content": message}
+        ]
+        channel_messages = [x for x in channel_messages if x is not None]
+        channel_messages.reverse()
+        response_data: CompletionData = self.opneai.generate_completion_response(
+            message=channel_messages
+        )
+        status = response_data.status
+        reply_text = response_data.reply_text
+        status_text = response_data.status_text
+
+        if status is CompletionResult.OK:
+            u_lang = langid.classify(reply_text)[0]
+            match u_lang:
+                case "ko":
+                    await self._azure_tts(ctx=ctx, text=reply_text, lang="ko-KR")
+                case "en":
+                    await self._azure_tts(ctx=ctx, text=reply_text, lang="en-US")
+                case _:
+                    await self._azure_tts(ctx=ctx, text=reply_text, lang="ko-KR")
+        else:
+            u_lang = langid.classify(status_text)[0]
+            match u_lang:
+                case "ko":
+                    await self._azure_tts(ctx=ctx, text=reply_text, lang="ko-KR")
+                case "en":
+                    await self._azure_tts(ctx=ctx, text=reply_text, lang="en-US")
+                case _:
+                    await self._azure_tts(ctx=ctx, text=reply_text, lang="ko-KR")
