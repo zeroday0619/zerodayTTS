@@ -72,6 +72,7 @@ class TTSCore(commands.Cog):
         self.logger = generate_log()
         self.messageQueue: CustomDict[Optional[dict[int, deque]]] = CustomDict()
         self.voice = VoiceObject()
+        self.lock = asyncio.Lock()
         self.volume = 150
         self.opneai = OpenAIClient()
 
@@ -190,33 +191,39 @@ class TTSCore(commands.Cog):
     #    except Exception:
     #        return status(Exception)
 
-    async def _azure_tts(self, ctx: Context, text: str, lang: str, pass_text: str | None = None):
+    async def _azure_tts(
+        self,
+        ctx: Context,
+        text: str,
+        lang: str,
+        pass_text: str | None = None,
+        delete_after: float | None = None,
+    ):
         """Text to Speech"""
         try:
             if pass_text is not None:
-                await ctx.send(f"[**{ctx.author.name}**] >> {pass_text}")
+                await ctx.send(
+                    f"[**{ctx.author.name}**] >> {pass_text}", delete_after=delete_after
+                )
             else:
-                await ctx.send(f"[**{ctx.author.name}**] >> {text}")
+                await ctx.send(
+                    f"[**{ctx.author.name}**] >> {text}", delete_after=delete_after
+                )
 
             self.messageQueue[ctx.author.guild.id].append([text, lang])
+
             while self.voice[ctx.author.guild.id].is_playing():
-                await asyncio.sleep(0.5)
+                pass
             else:
-                print(self.messageQueue[ctx.author.guild.id])
-                if self.messageQueue[ctx.author.guild.id].__len__() < 1:
+                async with self.lock:
+                    self.logger.info(f"{self.messageQueue[ctx.author.guild.id]}")
+                    q_text = self.messageQueue[ctx.author.guild.id].popleft()
                     q_player = await TTSSource.microsoft_azure_text_to_speech(
-                        text=text, language_code=lang
+                        text=q_text[0], language_code=q_text[1]
                     )
-                    await asyncio.wait(
-                        [asyncio.create_task(self.play(ctx=ctx, source=q_player))]
-                    )
-                else:
-                    for _ in range(self.messageQueue[ctx.author.guild.id].__len__()):
-                        q_text = self.messageQueue[ctx.author.guild.id].pop()
-                        print(q_text[1])
-                        q_player = await TTSSource.microsoft_azure_text_to_speech(
-                            text=q_text[0], language_code=q_text[1]
-                        )
+                    while self.voice[ctx.author.guild.id].is_playing():
+                        pass
+                    else:
                         await asyncio.wait(
                             [asyncio.create_task(self.play(ctx=ctx, source=q_player))]
                         )

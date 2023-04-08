@@ -37,7 +37,43 @@ class TTS(TTSCore):
             case "fr":
                 await self._azure_tts(ctx=ctx, text=text, lang="fr-FR")
             case _:
-                await self._azure_tts(ctx=ctx, text="unknown language", lang="en-US", pass_text=text)
+                await self._azure_tts(
+                    ctx=ctx, text="unknown language", lang="en-US", pass_text=text
+                )
+
+    @hybrid_command()
+    async def ptts(self, ctx, *, text: str):
+        u_lang = langid.classify(text)[0]
+        await self.join(ctx)
+        match u_lang:
+            case "ko":
+                await self._azure_tts(
+                    ctx=ctx, text=text, lang="ko-KR", delete_after=5.0
+                )
+            case "en":
+                await self._azure_tts(
+                    ctx=ctx, text=text, lang="en-US", delete_after=5.0
+                )
+            case "ja":
+                await self._azure_tts(
+                    ctx=ctx, text=text, lang="ja-JP", delete_after=5.0
+                )
+            case "zh":
+                await self._azure_tts(
+                    ctx=ctx, text=text, lang="zh-CN", delete_after=5.0
+                )
+            case "fr":
+                await self._azure_tts(
+                    ctx=ctx, text=text, lang="fr-FR", delete_after=5.0
+                )
+            case _:
+                await self._azure_tts(
+                    ctx=ctx,
+                    text="unknown language",
+                    lang="en-US",
+                    pass_text=text,
+                    delete_after=5.0,
+                )
 
     @hybrid_command(name="bixby")
     async def bixby(self, ctx, *, message: str):
