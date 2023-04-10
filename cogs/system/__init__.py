@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 from discord.ext.commands import Context, hybrid_command
-
 from app.services.logger import generate_log
 
 
@@ -12,7 +11,7 @@ class System(commands.Cog):
 
     @hybrid_command(with_app_command=True)
     async def reset(self, ctx: Context):
-        self.tree.clear_commands(guild=ctx.guild)
+        self.bot.__tree.clear_commands(guild=ctx.guild)
         self.logger.info(f"Cleared commands for {str(ctx.guild.id)}-{ctx.guild.name}")
         await self.bot.__tree.sync(guild=ctx.guild)
         await ctx.send(f"Synced commands for {ctx.guild.name}")
