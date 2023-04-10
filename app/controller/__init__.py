@@ -1,5 +1,4 @@
-import discord
-
+import asyncio
 from abc import ABCMeta
 from typing import List, Optional
 
@@ -27,6 +26,10 @@ class ZerodayTTS(ZerodayCore, metaclass=ABCMeta):
     async def on_ready(self):
         await self.load_extensions(["cogs.system", "cogs.tts"])
         try:
+            while self.is_ws_ratelimited():
+                self.logger.info("Websocket ratelimited, waiting 10 seconds")
+                await asyncio.sleep(10)
+                pass
             await self.tree.sync()
         except Exception as e:
             self.logger.error(e)
