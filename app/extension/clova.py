@@ -44,7 +44,9 @@ class MSAzureTTS:
     async def text_to_speech(self, text: str, language_code: str = "ko-KR"):
         try:
             source = MicrosoftTTS(api_key=os.environ.get("ms_key"))
-            names = await self.select_language(language_code=language_code, gender="Female")
+            names = await self.select_language(
+                language_code=language_code, gender="Female"
+            )
             _ssml = source.create_ssml(
                 text=text, lang=language_code, gender="Female", name=names[0]
             )

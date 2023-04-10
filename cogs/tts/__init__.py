@@ -1,22 +1,26 @@
 import json
+
 import langid
 from discord.ext import commands
 from discord.ext.commands import Bot, hybrid_command
-from app.services.logger import generate_log
-from cogs.tts._core_class import TTSCore
-from app.extension.clova import MSAzureTTS
 from textblob import TextBlob
 
+from app.extension.clova import MSAzureTTS
+from app.services.logger import generate_log
+from cogs.tts._core_class import TTSCore
 
 FFMPEG_OPTIONS = {
     "options": "-y",
 }
 
+
 class TextFlags(commands.FlagConverter):
     text: str = commands.flag(description="text")
 
+
 class GenderFlags(commands.FlagConverter):
     value: str = commands.flag(description="Female, Male", default="f")
+
 
 class TTS(TTSCore):
     __slots__ = ("bot", "voice", "messageQueue")
@@ -42,13 +46,10 @@ class TTS(TTSCore):
         else:
             await ctx.send(f"not support: {gender}")
             return
-        
+
         listd_json = await ms_azure_tts.select_language("ko-KR", gender=gen)
         pp_listd_json = json.dumps(listd_json, indent=4, ensure_ascii=False)
-        await ctx.send(
-            f"```json\n{pp_listd_json}\n```"
-        )
-        
+        await ctx.send(f"```json\n{pp_listd_json}\n```")
 
     @hybrid_command(name="tts", with_app_command=True)
     async def tts(self, ctx, *, flags: TextFlags):

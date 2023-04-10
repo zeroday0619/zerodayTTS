@@ -2,18 +2,23 @@ import asyncio
 from collections import deque
 from collections.abc import MutableMapping
 from typing import Optional
-import langid
+
 import discord
+import langid
 from discord.channel import VoiceChannel
 from discord.ext import commands, tasks
 from discord.ext.commands.context import Context
 from discord.voice_client import VoiceClient
 
 from app.error import VoiceConnectionError
+from app.extension.chatgpt import OpenAIClient
+from app.extension.chatgpt._client import (
+    MAX_THREAD_MESSAGES,
+    CompletionData,
+    CompletionResult,
+)
 from app.services.logger import generate_log
 from cogs.tts.player import TTSSource
-from app.extension.chatgpt import OpenAIClient
-from app.extension.chatgpt._client import MAX_THREAD_MESSAGES, CompletionData, CompletionResult
 
 
 class CustomDict(MutableMapping):
@@ -229,15 +234,13 @@ class TTSCore(commands.Cog):
                         )
         except Exception as e:
             self.logger.warning(msg=f"{str(e)}")
-    
+
     def discord_mention_message(self, message: discord.Message):
         if message.type == discord.MessageType.default:
             return {"role": "user", "content": message.content}
-        return None      
+        return None
 
-    def is_last_message_stale(
-        self, last_message: discord.Message
-    ) -> bool:
+    def is_last_message_stale(self, last_message: discord.Message) -> bool:
         return (
             last_message
             and last_message.author
@@ -247,7 +250,7 @@ class TTSCore(commands.Cog):
     async def _bixby(self, ctx: Context, message: str):
         channel_messages = [
             {"role": "system", "content": "Bixby"},
-            {"role": "user", "content": message}
+            {"role": "user", "content": message},
         ]
         channel_messages = [x for x in channel_messages if x is not None]
         channel_messages.reverse()

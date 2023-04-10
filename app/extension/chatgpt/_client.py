@@ -1,12 +1,16 @@
 import os
-import openai
-import discord
-from enum import Enum
 from dataclasses import dataclass
+from enum import Enum
+
+import discord
+import openai
 
 SEPARATOR_TOKEN = "<|endoftext|>"
 MAX_THREAD_MESSAGES = 50
-MAX_CHARS_PER_REPLY_MSG = (1500) # discord has a 2k limit, we just break message into 1.5k
+MAX_CHARS_PER_REPLY_MSG = (
+    1500  # discord has a 2k limit, we just break message into 1.5k
+)
+
 
 class CompletionResult(Enum):
     OK = 0
@@ -35,15 +39,13 @@ class OpenAIClient:
             for i in range(0, len(message), MAX_CHARS_PER_REPLY_MSG)
         ]
 
-    def generate_completion_response(
-        self, message: list[dict]
-    ) -> CompletionData:
+    def generate_completion_response(self, message: list[dict]) -> CompletionData:
         try:
             response = self.openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
                 messages=message,
             )
-            reply = response['choices'][0]['message']['content']
+            reply = response["choices"][0]["message"]["content"]
             return CompletionData(
                 status=CompletionResult.OK, reply_text=reply, status_text=None
             )

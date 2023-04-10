@@ -21,7 +21,6 @@ class ZerodayTTS(ZerodayCore, metaclass=ABCMeta):
     ):
         self.intents = intents
         super().__init__(message, intents, discord_token, *args, **kwargs)
-        
 
     async def on_ready(self):
         await self.load_extensions(["cogs.system", "cogs.tts"])
