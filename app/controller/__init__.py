@@ -29,6 +29,7 @@ class ZerodayTTS(ZerodayCore, metaclass=ABCMeta):
                 self.logger.info("Websocket ratelimited, waiting 10 seconds")
                 await asyncio.sleep(10)
                 pass
+            await self.tree.clear_commands()
             await self.tree.sync()
         except Exception as e:
             self.logger.error(e)
