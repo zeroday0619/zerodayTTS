@@ -9,7 +9,7 @@ class MSAzureTTS:
     def __init__(self):
         self.logger = generate_log()
 
-    async def select_language(self, language_code: str):
+    async def select_language(self, language_code: str, gender: str):
         voices = await MicrosoftTTS(api_key=os.environ.get("ms_key")).get_voice_list()
         """
         Get voice list structure
@@ -37,14 +37,14 @@ class MSAzureTTS:
         vc_list: list[str] = []
         for voice in voices:
             if voice["Locale"] == language_code:
-                if voice["Gender"] == "Female":
+                if str(voice["Gender"]).lower() == str(gender).lower():
                     vc_list.append(voice["ShortName"])
         return vc_list
 
     async def text_to_speech(self, text: str, language_code: str = "ko-KR"):
         try:
             source = MicrosoftTTS(api_key=os.environ.get("ms_key"))
-            names = await self.select_language(language_code)
+            names = await self.select_language(language_code=language_code, gender="Female")
             _ssml = source.create_ssml(
                 text=text, lang=language_code, gender="Female", name=names[0]
             )

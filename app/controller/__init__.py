@@ -27,12 +27,7 @@ class ZerodayTTS(ZerodayCore, metaclass=ABCMeta):
     async def on_ready(self):
         await self.load_extensions(["cogs.system", "cogs.tts"])
         try:
-            for channel in self.get_all_channels():
-                await self.tree.sync(
-                    guild=discord.Object(id=channel.guild.id),
-                )
-                self.logger.info(f"Guild {channel.guild.name} synced")
-            self.logger.info("All guilds synced")
+            await self.tree.sync()
         except Exception as e:
             self.logger.error(e)
 

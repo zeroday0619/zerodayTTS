@@ -1,12 +1,22 @@
+import json
 import langid
-from discord.ext.commands import Bot, hybrid_command, command
+from discord.ext import commands
+from discord.ext.commands import Bot, hybrid_command
 from app.services.logger import generate_log
 from cogs.tts._core_class import TTSCore
+from app.extension.clova import MSAzureTTS
+from textblob import TextBlob
+
 
 FFMPEG_OPTIONS = {
     "options": "-y",
 }
 
+class TextFlags(commands.FlagConverter):
+    text: str = commands.flag(description="text")
+
+class GenderFlags(commands.FlagConverter):
+    value: str = commands.flag(description="Female, Male", default="f")
 
 class TTS(TTSCore):
     __slots__ = ("bot", "voice", "messageQueue")
@@ -21,9 +31,32 @@ class TTS(TTSCore):
     def _clova_tts_status(self, status):
         self._clova_status = status
 
-    @hybrid_command()
-    async def tts(self, ctx, *, text):
-        u_lang = langid.classify(text)[0]
+    @hybrid_command(name="language", with_app_command=True)
+    async def select_language(self, ctx: commands.Context, gender: GenderFlags):
+        ms_azure_tts = MSAzureTTS()
+        gender = gender.value.lower()
+        if gender == "f":
+            gen = "female"
+        elif gender == "m":
+            gen = "male"
+        else:
+            await ctx.send(f"not support: {gender}")
+            return
+        
+        listd_json = await ms_azure_tts.select_language("ko-KR", gender=gen)
+        pp_listd_json = json.dumps(listd_json, indent=4, ensure_ascii=False)
+        await ctx.send(
+            f"```json\n{pp_listd_json}\n```"
+        )
+        
+
+    @hybrid_command(name="tts", with_app_command=True)
+    async def tts(self, ctx, *, flags: TextFlags):
+        text = flags.text
+        if len(text) > 3:
+            u_lang = TextBlob(text).detect_language()
+        else:
+            u_lang = langid.classify(text)[0]
         await self.join(ctx)
         match u_lang:
             case "ko":
@@ -41,9 +74,12 @@ class TTS(TTSCore):
                     ctx=ctx, text="unknown language", lang="en-US", pass_text=text
                 )
 
-    @hybrid_command()
+    @hybrid_command("ptts", with_app_command=True)
     async def ptts(self, ctx, *, text: str):
-        u_lang = langid.classify(text)[0]
+        if len(text) > 3:
+            u_lang = TextBlob(text).detect_language()
+        else:
+            u_lang = langid.classify(text)[0]
         await self.join(ctx)
         match u_lang:
             case "ko":
@@ -75,12 +111,13 @@ class TTS(TTSCore):
                     delete_after=5.0,
                 )
 
-    @hybrid_command(name="bixby")
+    @hybrid_command(name="bixby", with_app_command=True)
     async def bixby(self, ctx, *, message: str):
+        """Powered by Open AI"""
         await self.join(ctx)
         await self._bixby(ctx, message)
 
-    @hybrid_command()
+    @hybrid_command(name="connect", with_app_command=True)
     async def connect(self, ctx):
         try:
             await self.join(ctx)
@@ -88,7 +125,7 @@ class TTS(TTSCore):
             return await ctx.send("오류가 발생했습니다.")
         return await ctx.send(f"{ctx.author.name}님 정상적으로 보이스 채널에 연결되었습니다.")
 
-    @hybrid_command()
+    @hybrid_command(name="leave", with_app_command=True)
     async def leave(self, ctx):
         """Leaves a voice channel."""
         try:
