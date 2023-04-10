@@ -34,7 +34,7 @@ class ZerodayTTS(ZerodayCore, metaclass=ABCMeta):
             # get connected guilds id
             for guild in self.guilds:
                 self.tree.clear_commands(guild=guild.id)
-                self.logger.info(f"Cleared commands for {guild.id}-{guild.name}")
+                self.logger.info(f"Cleared commands for {str(guild.id)}-{guild.name}")
 
             await self.tree.sync()
         except Exception as e:
