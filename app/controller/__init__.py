@@ -37,7 +37,6 @@ class ZerodayTTS(ZerodayCore, metaclass=ABCMeta):
                 self.logger.info(f"Cleared commands for {str(guild.id)}-{guild.name}")
                 await self.tree.sync(guild=guild)
                 self.logger.info(f"Synced commands for {str(guild.id)}-{guild.name}")
-
         except Exception as e:
             self.logger.error(e)
 
