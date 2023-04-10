@@ -33,7 +33,7 @@ class ZerodayTTS(ZerodayCore, metaclass=ABCMeta):
             # discord.py
             # get connected guilds id
             for guild in self.guilds:
-                self.tree.clear_commands(guild=guild.id)
+                self.tree.clear_commands(guild=guild)
                 self.logger.info(f"Cleared commands for {str(guild.id)}-{guild.name}")
 
             await self.tree.sync()
