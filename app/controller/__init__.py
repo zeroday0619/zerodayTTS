@@ -17,7 +17,7 @@ class ZerodayTTS(ZerodayCore, metaclass=ABCMeta):
         intents: Intents,
         discord_token: Optional[str] = None,
         *args,
-        **kwargs
+        **kwargs,
     ):
         self.intents = intents
         super().__init__(message, intents, discord_token, *args, **kwargs)
@@ -29,7 +29,13 @@ class ZerodayTTS(ZerodayCore, metaclass=ABCMeta):
                 self.logger.info("Websocket ratelimited, waiting 10 seconds")
                 await asyncio.sleep(10)
                 pass
-            await self.tree.clear_commands()
+
+            # discord.py
+            # get connected guilds id
+            for guild in self.guilds:
+                self.tree.clear_commands(guild=guild.id)
+                self.logger.info(f"Cleared commands for {guild.id}-{guild.name}")
+
             await self.tree.sync()
         except Exception as e:
             self.logger.error(e)
