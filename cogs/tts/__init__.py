@@ -52,6 +52,7 @@ class TTS(TTSCore):
 
     @hybrid_command(name="tts", with_app_command=True)
     async def tts(self, ctx, *, flags: TextFlags):
+        """TTS Powered by Microsoft Azure Cognitive Speech Services"""
         text = flags.text
         if len(text) > 3:
             u_lang = TextBlob(text).detect_language()
@@ -76,6 +77,7 @@ class TTS(TTSCore):
 
     @hybrid_command("ptts", with_app_command=True)
     async def ptts(self, ctx, *, text: str):
+        """Private TTS Powered by Microsoft Azure Cognitive Speech Services"""
         if len(text) > 3:
             u_lang = TextBlob(text).detect_language()
         else:
