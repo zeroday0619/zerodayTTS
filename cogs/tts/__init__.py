@@ -1,10 +1,9 @@
 import json
 
-import langid
 from discord.ext import commands
 from discord.ext.commands import Bot, hybrid_command
-from textblob import TextBlob
 
+from app.extension.azure_api import AzureLanguageService
 from app.extension.clova import MSAzureTTS
 from app.services.logger import generate_log
 from cogs.tts._core_class import TTSCore
@@ -28,6 +27,7 @@ class TTS(TTSCore):
     def __init__(self, bot: Bot):
         self.logger = generate_log()
         super(TTS, self).__init__(bot)
+        self.azure = AzureLanguageService()
 
     def _kakao_tts_status(self, status):
         self._kakao_status = status
@@ -55,10 +55,7 @@ class TTS(TTSCore):
     async def tts(self, ctx, *, flags: TextFlags):
         """TTS Powered by Microsoft Azure Cognitive Speech Services"""
         text = flags.text
-        # if len(text) > 3:
-        #     u_lang = TextBlob(text).detect_language()
-        # else:
-        u_lang = langid.classify(text)[0]
+        u_lang = self.azure.language_detect(text)
         await self.join(ctx)
         match u_lang:
             case "ko":
@@ -79,10 +76,7 @@ class TTS(TTSCore):
     @hybrid_command("ptts", with_app_command=True)
     async def ptts(self, ctx, *, text: str):
         """Private TTS Powered by Microsoft Azure Cognitive Speech Services"""
-        # if len(text) > 3:
-        #     u_lang = TextBlob(text).detect_language()
-        # else:
-        u_lang = langid.classify(text)[0]
+        u_lang = self.azure.language_detect(text)
         await self.join(ctx)
         match u_lang:
             case "ko":

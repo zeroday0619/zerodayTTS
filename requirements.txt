@@ -7,5 +7,5 @@ databases[mysql]==0.7.0
 langdetect==1.0.9
 NaverTTS>=0.2.0
 pynacl
-
+azure-ai-textanalytics==5.2.0
 langid
