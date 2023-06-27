@@ -70,7 +70,7 @@ class TTS(TTSCore):
                 await self._azure_tts(ctx=ctx, text=text, lang="fr-FR")
             case _:
                 await self._azure_tts(
-                    ctx=ctx, text="unknown language", lang="en-US", pass_text=text
+                    ctx=ctx, text=text, lang="ko-KR", pass_text=text
                 )
 
     @hybrid_command("ptts", with_app_command=True)
@@ -102,8 +102,8 @@ class TTS(TTSCore):
             case _:
                 await self._azure_tts(
                     ctx=ctx,
-                    text="unknown language",
-                    lang="en-US",
+                    text=text,
+                    lang="ko-KR",
                     pass_text=text,
                     delete_after=5.0,
                 )

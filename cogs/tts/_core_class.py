@@ -88,10 +88,6 @@ class TTSCore(commands.Cog):
         else:
             return r_func
 
-    @commands.Cog.listener()
-    async def on_ready(self) -> None:
-        await self.check_voice_ch_active_user.start()
-
     def is_joined(self, ctx: Context, member: discord.Member):
         """
         Checks if member is in a voice channel.
@@ -109,21 +105,6 @@ class TTSCore(commands.Cog):
             and self.voice.get(ctx.author.guild.id).channel.id
             == member.voice.channel.id
         )
-
-    @tasks.loop(minutes=5)
-    async def check_voice_ch_active_user(self):
-        for _id in list(self.voice.keys()):
-            if _id:
-                ch: VoiceChannel = self.voice[_id].channel
-                if ch.members.__len__() < 2:
-                    try:
-                        await self.voice[_id].disconnect()
-                        del self.messageQueue[_id]
-                        self.voice.__delitem__(_id)
-                    except KeyError as e:
-                        self.logger.error(msg=e)
-                else:
-                    pass
 
     async def join(self, ctx: Context):
         """Joins a voice channel."""
