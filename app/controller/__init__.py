@@ -23,7 +23,7 @@ class ZerodayTTS(ZerodayCore, metaclass=ABCMeta):
         super().__init__(message, intents, discord_token, *args, **kwargs)
 
     async def on_ready(self):
-        await self.load_extensions(["cogs.system", "cogs.tts"])
+        await self.load_extensions(["cogs.system", "cogs.tts", "cogs.utils"])
         try:
             while self.is_ws_ratelimited():
                 self.logger.info("Websocket ratelimited, waiting 10 seconds")
