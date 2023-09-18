@@ -1,7 +1,7 @@
 Cython==3.0.0
 git+https://github.com/Rapptz/discord.py.git
 git+https://github.com/zeroday0619/AzureTTS.git
-rich==13.5.2
+rich==13.5.3
 kss==1.3.1
 databases[mysql]==0.7.0
 langdetect==1.0.9
