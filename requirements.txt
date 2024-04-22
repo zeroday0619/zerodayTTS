@@ -1,4 +1,4 @@
-Cython==3.0.8
+Cython==3.0.10
 git+https://github.com/Rapptz/discord.py.git
 git+https://github.com/zeroday0619/AzureTTS.git
 rich==13.7.0
